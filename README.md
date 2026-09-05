@@ -58,6 +58,39 @@ after the auto-fill; nothing is locked.
 Hero options are built automatically from the unique `hero` values across
 all your defenses — you don't need to list heroes separately.
 
+## Transparency
+
+The canvas has a transparent background by default; the checkerboard you
+see in the preview is a CSS background behind the canvas (in `style.css`)
+purely for visualizing transparency — it is never part of the exported
+PNG. Any part of your template PNG that's transparent stays transparent
+in the downloaded image.
+
+## Text drawn on the card
+
+Only values the user actually supplied are drawn onto the card — if a
+field is empty, nothing is drawn for it, so your template's own baked-in
+labels ("Power", "Fusion", "Def. Damage", etc.) show through untouched.
+**Targeting Priority** is the one exception: since it always has a real
+selected value (never blank), it's always drawn. **Level** works the same
+way, since it also can't be blank.
+
+## Hero colors
+
+Each hero's name is drawn in its own color via the `HERO_COLORS` object
+near the top of `script.js`:
+
+```js
+const HERO_COLORS = {
+  "Hero Alpha": "#d97757",
+  "Hero Beta": "#3a5a78",
+  ...
+};
+```
+
+Add an entry for every hero used in `DEFENSES`. Any hero without an entry
+falls back to `LAYOUT.hero.color`.
+
 ## 3. Positioning the fields
 
 Everything about where things are drawn lives in the `LAYOUT` object near

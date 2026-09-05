@@ -16,7 +16,7 @@ const CANVAS_WIDTH = 360;
 const CANVAS_HEIGHT = 430;
 
 const TEMPLATE_SRC = "assets/template.png";
-const FUSION_TEMPLATE_SRC = "assets/fusion-template.png";
+const FUSED_TEMPLATE_SRC = "assets/fused-template.png";
 const MANIFEST_SRC = "assets/manifest.json";
 
 const FONT_REGULAR = "Poppins, Arial, sans-serif";
@@ -38,72 +38,80 @@ const LAYOUT = {
     x: 95, y: 54,
     font: `13px ${FONT_REGULAR}`,
     color: "#444444",
-    align: "left",
-    prefix: "Level: "
+    align: "left"
   },
   hero: {
     x: 95, y: 72,
-    font: `13px ${FONT_REGULAR}`,
-    color: "#444444",
-    align: "left",
-    prefix: "Hero: "
+    font: `bold 13px ${FONT_BOLD}`,
+    color: "#444444", // fallback color if the hero isn't in HERO_COLORS below
+    align: "left"
   },
   mana: {
     x: 95, y: 90,
     font: `13px ${FONT_REGULAR}`,
     color: "#444444",
-    align: "left",
-    prefix: "Mana: "
+    align: "left"
   },
   du: {
     x: 230, y: 90,
     font: `13px ${FONT_REGULAR}`,
     color: "#444444",
-    align: "left",
-    prefix: "DU: "
+    align: "left"
   },
   fusionReq: {
     x: 15, y: 200,
     font: `12px ${FONT_REGULAR}`,
     color: "#555555",
-    align: "left",
-    prefix: "Fusion: "
+    align: "left"
   },
   runeReq: {
     x: 15, y: 218,
     font: `12px ${FONT_REGULAR}`,
     color: "#555555",
-    align: "left",
-    prefix: "Rune: "
+    align: "left"
   },
   targeting: {
     x: 15, y: 236,
     font: `12px ${FONT_REGULAR}`,
     color: "#555555",
-    align: "left",
-    prefix: "Targeting: "
+    align: "left"
   },
-  // 4 stats laid out in a row near the bottom
+  // 4 stats laid out in a row near the bottom. No labels are drawn here —
+  // the template already has "Power" / "Range" / etc. printed on it; this
+  // just places the value on top of each.
   statRow: {
     y: 388,
-    labelFont: `10px ${FONT_REGULAR}`,
     valueFont: `bold 15px ${FONT_BOLD}`,
-    labelColor: "#888888",
     valueColor: "#111111",
     columns: [
-      { key: "power", x: 20, label: "POWER" },
-      { key: "range", x: 110, label: "RANGE" },
-      { key: "defrate", x: 200, label: "DEF. RATE" },
-      { key: "fortify", x: 290, label: "FORTIFY" }
+      { key: "power", x: 20 },
+      { key: "range", x: 110 },
+      { key: "defrate", x: 200 },
+      { key: "fortify", x: 290 }
     ]
   },
   defDamage: {
     x: 15, y: 412,
     font: `12px ${FONT_REGULAR}`,
     color: "#555555",
-    align: "left",
-    prefix: "Def. Damage: "
+    align: "left"
   }
+};
+
+/* ============================================================
+   HERO COLORS
+   ------------------------------------------------------------
+   The Hero value is drawn in a color specific to that hero. Add
+   an entry here for each hero name used in DEFENSES below; any
+   hero without an entry falls back to LAYOUT.hero.color.
+   ============================================================ */
+
+const HERO_COLORS = {
+  "Hero Alpha": "#d97757",
+  "Hero Beta": "#3a5a78",
+  "Hero Gamma": "#7a9e5b",
+  "Hero Delta": "#c9a227",
+  "Hero Epsilon": "#8a5a9e"
 };
 
 /* ============================================================
@@ -276,7 +284,7 @@ async function init() {
     console.warn(e.message);
   }
   try {
-    templateImages.fusion = await loadImage(FUSION_TEMPLATE_SRC);
+    templateImages.fusion = await loadImage(FUSED_TEMPLATE_SRC);
   } catch (e) {
     console.warn(e.message);
   }
@@ -333,6 +341,17 @@ function attachListeners() {
    MAIN RENDER
    ============================================================ */
 
+// Draws `value` at a LAYOUT position/font/color, but only if it's
+// actually non-empty — fields with no user input draw nothing, since
+// the template already has its own static labels/icons baked in.
+function drawIfPresent(layout, value, colorOverride) {
+  if (value === null || value === undefined || String(value).trim() === "") return;
+  ctx.fillStyle = colorOverride || layout.color;
+  ctx.font = layout.font;
+  ctx.textAlign = layout.align;
+  ctx.fillText(String(value), layout.x, layout.y);
+}
+
 async function render() {
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
@@ -361,77 +380,63 @@ async function render() {
 
   // 2. Template — drawn on top of the icon. The template image
   // should have a transparent window over the icon box for it to
-  // show through.
+  // show through. Any part of the template that's transparent stays
+  // transparent in the exported PNG too.
   const templateImg = els.fusion.checked ? templateImages.fusion : templateImages.normal;
   if (templateImg) {
     ctx.drawImage(templateImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   } else {
-    ctx.fillStyle = "rgba(238,238,238,0.6)";
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     ctx.fillStyle = "#999999";
     ctx.font = "12px Arial";
+    ctx.textAlign = "left";
     ctx.fillText(
-      els.fusion.checked ? "assets/fusion-template.png not found" : "assets/template.png not found",
+      els.fusion.checked ? "assets/fused-template.png not found" : "assets/template.png not found",
       20, 20
     );
   }
 
-  // 3. Defense name (title)
-  const dn = LAYOUT.defenseName;
-  ctx.fillStyle = dn.color;
-  ctx.font = dn.font;
-  ctx.textAlign = dn.align;
-  ctx.fillText(els.defense.value || "— Defense —", dn.x, dn.y);
+  // 3. Defense name (title) — only drawn once a defense is actually selected.
+  drawIfPresent(LAYOUT.defenseName, els.defense.value);
 
-  // 4. Level
-  drawLabeledText(LAYOUT.level, els.level.value);
+  // 4. Level — always has a real value (no blank state), so it always draws.
+  drawIfPresent(LAYOUT.level, els.level.value);
 
-  // 5. Hero
-  drawLabeledText(LAYOUT.hero, els.hero.value);
+  // 5. Hero — colored per-hero via HERO_COLORS, falls back to LAYOUT.hero.color.
+  drawIfPresent(LAYOUT.hero, els.hero.value, HERO_COLORS[els.hero.value]);
 
   // 6. Mana
-  drawLabeledText(LAYOUT.mana, els.mana.value);
+  drawIfPresent(LAYOUT.mana, els.mana.value);
 
   // 7. DU
-  drawLabeledText(LAYOUT.du, els.du.value);
+  drawIfPresent(LAYOUT.du, els.du.value);
 
   // 8. Fusion Requirement
-  drawLabeledText(LAYOUT.fusionReq, els.fusionReq.value);
+  drawIfPresent(LAYOUT.fusionReq, els.fusionReq.value);
 
   // 9. Rune Requirement
-  drawLabeledText(LAYOUT.runeReq, els.runeReq.value);
+  drawIfPresent(LAYOUT.runeReq, els.runeReq.value);
 
-  // 10. Targeting Priority
-  drawLabeledText(LAYOUT.targeting, els.targeting.value);
+  // 10. Targeting Priority — exception to the "skip if empty" rule; this
+  // field always has a selection and is always drawn.
+  drawIfPresent(LAYOUT.targeting, els.targeting.value);
 
-  // 11. Stat row: Power, Range, Def. Rate, Fortify
+  // 11. Stat row: Power, Range, Def. Rate, Fortify — no labels drawn
+  // (the template already has those printed), and nothing drawn at all
+  // if the user hasn't entered a value for that stat.
   const sr = LAYOUT.statRow;
   sr.columns.forEach(col => {
     const rawValue = els[col.key].value;
-    ctx.fillStyle = sr.labelColor;
-    ctx.font = sr.labelFont;
-    ctx.textAlign = "left";
-    ctx.fillText(col.label, col.x, sr.y - 14);
-
+    if (rawValue.trim() === "") return;
     ctx.fillStyle = sr.valueColor;
     ctx.font = sr.valueFont;
+    ctx.textAlign = "left";
     ctx.fillText(formatStatNumber(rawValue), col.x, sr.y);
   });
 
   // 12. Def. Damage
-  drawLabeledText(LAYOUT.defDamage, formatDefDamage(els.defdamage.value), true);
-}
-
-// Draws a prefix + value pair using a LAYOUT entry's font/color/position.
-// Pass preFormatted=true if `value` is already the exact string to show
-// (skips prepending LAYOUT's own prefix a second time isn't an issue here
-// since defDamage's prefix is still applied below).
-function drawLabeledText(layout, value, preFormatted) {
-  ctx.fillStyle = layout.color;
-  ctx.font = layout.font;
-  ctx.textAlign = layout.align;
-  const text = preFormatted ? layout.prefix + value : layout.prefix + (value || "—");
-  ctx.fillText(text, layout.x, layout.y);
+  if (els.defdamage.value.trim() !== "") {
+    drawIfPresent(LAYOUT.defDamage, formatDefDamage(els.defdamage.value));
+  }
 }
 
 /* ============================================================
