@@ -1,115 +1,105 @@
-# Image Generator
+# Defense Card Generator
 
-A static, no-backend site that draws form input (text + a chosen asset image)
-onto a fixed 360×430 template and lets the user download the result as a PNG.
-Built to be hosted on GitHub Pages.
+A static, no-backend site that draws form input onto a fixed 360×430
+template and lets the user download the result as a PNG. Built to be
+hosted on GitHub Pages.
 
 ## File structure
 
 ```
 index.html      the form + canvas markup
-style.css       layout/styling
-script.js       all drawing logic + field layout config (LAYOUT object)
+style.css       layout/styling, theme variables, Poppins @font-face
+script.js       all drawing logic, DEFENSES data, LAYOUT config
 assets/
-  template.png       <-- add your 360x430 template here
-  manifest.json       auto-generated list of asset filenames
-  asset-01.png ...    <-- add your ~40-45 asset images here
+  template.png            non-fusion background
+  fusion-template.png     fusion background
+  manifest.json           auto-generated list of icon asset filenames
+  asset-01.png ...        <-- your ~40-45 icon images go here
+  fonts/
+    Poppins-Regular.ttf   <-- add your real font files here
+    Poppins-bold.ttf
 .github/workflows/build-manifest.yml   keeps manifest.json in sync automatically
 ```
 
 ## 1. Add your files
 
-1. Drop your template image into `assets/template.png` (must be named exactly
-   that, or change `TEMPLATE_SRC` at the top of `script.js`).
-2. Drop your ~40-45 asset images into the `assets/` folder, any names you like.
-3. Push to GitHub. The included GitHub Action
-   (`.github/workflows/build-manifest.yml`) automatically regenerates
-   `assets/manifest.json` any time files in `assets/` change, so the dropdown
-   in the form always matches what's actually in the folder — you never have
-   to edit that file by hand.
+1. Replace `assets/template.png` and `assets/fusion-template.png` with your
+   real 360×430 templates. Both should have a transparent window over the
+   icon box (top-left, 67×67 by default) so the icon shows through — the
+   icon is drawn *underneath* the template, not on top of it.
+2. Drop your ~40-45 icon images into `assets/`. The GitHub Action
+   (`.github/workflows/build-manifest.yml`) auto-regenerates
+   `assets/manifest.json` whenever files in `assets/` change, so the
+   dropdown always matches what's actually in the folder.
+3. Add your real font files to `assets/fonts/` named exactly
+   `Poppins-Regular.ttf` and `Poppins-bold.ttf` (case-sensitive — GitHub
+   Pages is a case-sensitive filesystem). If they're not there yet, the
+   card just falls back to Arial; nothing breaks.
 
-   If you'd rather not use the Action, you can just hand-edit
-   `assets/manifest.json` yourself — it's just a JSON array of filenames.
+## 2. Fill in your real defense data
 
-## 2. Positioning the fields
+Open `script.js` and find the `DEFENSES` object near the top:
 
-Everything about where things are drawn lives in one place: the `LAYOUT`
-object near the top of `script.js`. Each field has its own x/y (and for
-text, font/color/alignment; for the asset image, a bounding box it's scaled
-to fit inside).
+```js
+const DEFENSES = {
+  "Defense A": { hero: "Hero Alpha", mana: 150, du: 4, icon: "asset-01.png" },
+  "Defense B": { hero: "Hero Beta", mana: 200, du: 6, icon: "asset-02.png" },
+  "Defense C": { hero: "Hero Gamma", mana: 120, du: 3, icon: "asset-03.png", targetingPriority: "N/A" },
+  ...
+};
+```
+
+Replace these with your real defenses. Selecting a defense in the form
+auto-fills **Mana**, **DU**, **Hero**, the **icon**, and — if you add a
+`targetingPriority` key — **Targeting Priority** (otherwise it resets to
+the default, "Special"). All of those fields stay normal, editable inputs
+after the auto-fill; nothing is locked.
+
+Hero options are built automatically from the unique `hero` values across
+all your defenses — you don't need to list heroes separately.
+
+## 3. Positioning the fields
+
+Everything about where things are drawn lives in the `LAYOUT` object near
+the top of `script.js` (position, font, color per field).
 
 To reposition:
 
 1. Open the site (locally or via GitHub Pages).
-2. Check **"Show position grid"** under the form — this overlays a labeled
+2. Check **"Show position grid"** under the form — overlays a labeled
    ruler on the preview (never included in the downloaded image).
-3. Click anywhere on the preview image — the coordinates of that spot are
-   printed just below the canvas.
-4. Edit the corresponding `x` / `y` values in `LAYOUT` in `script.js`, save,
-   and refresh.
+3. Click anywhere on the preview — the coordinates print below the canvas.
+4. Edit the corresponding `x` / `y` values in `LAYOUT`, save, refresh.
 
-There are 12 fields wired up as placeholders: a preset picker, category tag,
-title, subtitle, asset image, a stat bar, description, ID, date, footer note,
-an accent color, and a featured-badge toggle. Rename the labels in
-`index.html` and adjust positions/fonts in `script.js` — the logic for each
-field type (plain text, wrapped text, image-fit, colored bar, toggleable
-badge) is already written, so most of your editing will just be numbers.
+## Field reference
 
-## Light/dark mode
+| Field | Type | Notes |
+|---|---|---|
+| Level | dropdown | 1–5, Max. Defaults to 1. |
+| Defense | dropdown | Drives auto-fill (see above). Defaults to unselected. |
+| Fusion | toggle | Defaults on. On = `fusion-template.png`, off = `template.png`. |
+| Mana | text | Auto-filled, blank by default, editable. |
+| DU | text | Auto-filled, blank by default, editable. |
+| Hero | dropdown | Auto-filled, **required** — blocks download if empty. |
+| Targeting Priority | dropdown | Air / Special / Fodder / Strong / Any / N/A. Defaults to Special; some defenses auto-fill N/A. |
+| Fusion Requirement | text + suggestions | Required, Optional, Highly Recommended, Recommended, or type your own. |
+| Rune Requirement | text + suggestions | Same as above, plus "Don't use". |
+| Power / Range / Def. Rate / Fortify | text | Positive integers only (non-digits stripped live). Displayed as-is up to 9999; above that, abbreviated as e.g. `12k` (values won't exceed 30000 per spec). No comma separators. |
+| Def. Damage | text | Percentage, up to 3 decimal places (extra digits stripped live). Displayed as `+ 12.345%`. |
+| Icon asset | dropdown | Pulled from `assets/manifest.json`. Auto-set by Defense, but still a normal dropdown you can override manually. |
 
-The site defaults to dark mode. The toggle button (top right) flips a
-`data-theme` attribute on `<html>` between `"dark"` and `"light"`, and
-remembers the choice in `localStorage` so it persists across visits. All the
-actual colors live in the `:root` / `[data-theme="light"]` blocks at the top
-of `style.css` — edit those to change the palette. Note this only affects the
-site's own UI (form, panels); the generated card image itself is unaffected,
-since that's drawn from your template and is meant to look the same
-regardless of who's using the tool.
+## 4. Light/dark mode
 
-## Preset autofill
+Defaults to dark. The toggle button (top right) flips a `data-theme`
+attribute on `<html>` and remembers the choice in `localStorage`. Colors
+live in the `:root` / `[data-theme="light"]` blocks at the top of
+`style.css`. This only affects the site's own UI — the generated card
+image is unaffected.
 
-The **Preset** dropdown at the top of the form fills in several other
-fields at once — including the asset image — based on the `PRESETS` object
-near the top of `script.js`. Every field it touches remains a normal,
-editable input afterwards; nothing is locked. To add your own presets, add
-an entry to `PRESETS` keyed by whatever value you give its `<option>` in
-`index.html`, e.g.:
-
-```js
-"preset-d": {
-  title: "New Preset",
-  asset: "asset-04.png",
-  color: "#8a5a9e"
-  // any other field keys you want it to fill: category, subtitle,
-  // description, stat, footer
-}
-```
-
-You don't have to fill every field — presets can set as many or as few as
-you like.
-
-## Suggestion + custom-text fields
-
-**Category tag**, **Subtitle**, and **Footer note** use a native HTML
-`<datalist>` — the user gets a dropdown of suggestions but can also type
-anything else. To edit the suggestion list for one of these, find its
-`<datalist>` block in `index.html` and add/remove `<option>` lines.
-
-## Toggle field
-
-The **Featured badge** switch is a plain checkbox styled as an on/off
-toggle. When checked, `script.js` draws a small badge (a star in a colored
-circle, using the accent color) in the corner of the card; when unchecked,
-nothing is drawn. Use this as the template for any other yes/no elements you
-want to add (e.g. a "holo" stripe, a stamp, a watermark) — add a checkbox
-field the same way and gate a draw call on `els.yourCheckbox.checked` in
-`render()`.
-
-## 3. Run it locally
+## 5. Run it locally
 
 Because the page `fetch`es `manifest.json`, opening `index.html` directly
-via `file://` won't work in most browsers (fetch is blocked for local files).
-Serve it with any static server, e.g.:
+via `file://` won't work in most browsers. Serve it with any static server:
 
 ```
 python3 -m http.server 8000
@@ -117,13 +107,11 @@ python3 -m http.server 8000
 
 then visit `http://localhost:8000`.
 
-## 4. Deploy on GitHub Pages
+## 6. Deploy on GitHub Pages
 
 1. Push this repo to GitHub.
-2. In the repo, go to **Settings → Pages**.
-3. Under "Build and deployment", set Source to **Deploy from a branch**,
-   pick your branch (e.g. `main`) and root folder (`/`).
-4. Save — your site will be live at `https://<username>.github.io/<repo>/`
-   within a minute or two.
+2. **Settings → Pages** → Source: **Deploy from a branch** → pick your
+   branch (e.g. `main`) and root folder (`/`).
+3. Save — live at `https://<username>.github.io/<repo>/` within a minute.
 
 No build step, no server, no dependencies.

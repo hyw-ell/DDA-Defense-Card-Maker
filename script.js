@@ -7,122 +7,127 @@
    checkbox in the form to see a labeled ruler while you tune
    these numbers, and click anywhere on the preview to read off
    the exact x/y of that spot in the small text under the canvas.
+
+   font strings use "Poppins" first, falling back to Arial if the
+   real font files haven't been added to assets/fonts/ yet.
    ============================================================ */
 
 const CANVAS_WIDTH = 360;
 const CANVAS_HEIGHT = 430;
 
 const TEMPLATE_SRC = "assets/template.png";
+const FUSION_TEMPLATE_SRC = "assets/fusion-template.png";
 const MANIFEST_SRC = "assets/manifest.json";
 
+const FONT_REGULAR = "Poppins, Arial, sans-serif";
+const FONT_BOLD = "Poppins, Arial, sans-serif"; // weight is set separately, see draw calls
+
 const LAYOUT = {
-  category: {
-    x: 20, y: 34,
-    font: "600 12px Arial",
-    color: "#555555",
-    align: "left",
-    letterSpacing: 1 // px, applied manually below
+  icon: {
+    // drawn UNDERNEATH the template — the template should have a
+    // transparent window over this box for it to show through.
+    x: 15, y: 15, width: 67, height: 67
   },
-  title: {
-    x: 20, y: 64,
-    font: "bold 26px Georgia",
+  defenseName: {
+    x: 95, y: 34,
+    font: `bold 20px ${FONT_BOLD}`,
     color: "#111111",
     align: "left"
   },
-  subtitle: {
-    x: 20, y: 86,
-    font: "16px Georgia",
+  level: {
+    x: 95, y: 54,
+    font: `13px ${FONT_REGULAR}`,
     color: "#444444",
-    align: "left"
+    align: "left",
+    prefix: "Level: "
   },
-  asset: {
-    x: 110, y: 105,
-    width: 140,
-    height: 140
-    // draws the chosen asset image inside this box, preserving aspect ratio
+  hero: {
+    x: 95, y: 72,
+    font: `13px ${FONT_REGULAR}`,
+    color: "#444444",
+    align: "left",
+    prefix: "Hero: "
   },
-  statBar: {
-    x: 20, y: 268,
-    width: 320, height: 14,
-    trackColor: "#e5e2da",
-    label: true
+  mana: {
+    x: 95, y: 90,
+    font: `13px ${FONT_REGULAR}`,
+    color: "#444444",
+    align: "left",
+    prefix: "Mana: "
   },
-  description: {
-    x: 20, y: 300,
-    maxWidth: 320,
-    lineHeight: 18,
-    font: "14px Arial",
-    color: "#333333",
-    align: "left"
+  du: {
+    x: 230, y: 90,
+    font: `13px ${FONT_REGULAR}`,
+    color: "#444444",
+    align: "left",
+    prefix: "DU: "
   },
-  id: {
-    x: 20, y: 402,
-    font: "12px monospace",
-    color: "#777777",
-    align: "left"
+  fusionReq: {
+    x: 15, y: 200,
+    font: `12px ${FONT_REGULAR}`,
+    color: "#555555",
+    align: "left",
+    prefix: "Fusion: "
   },
-  date: {
-    x: 340, y: 402,
-    font: "12px monospace",
-    color: "#777777",
-    align: "right"
+  runeReq: {
+    x: 15, y: 218,
+    font: `12px ${FONT_REGULAR}`,
+    color: "#555555",
+    align: "left",
+    prefix: "Rune: "
   },
-  footer: {
-    x: 180, y: 418,
-    font: "italic 11px Georgia",
-    color: "#999999",
-    align: "center"
+  targeting: {
+    x: 15, y: 236,
+    font: `12px ${FONT_REGULAR}`,
+    color: "#555555",
+    align: "left",
+    prefix: "Targeting: "
   },
-  featuredBadge: {
-    // small ribbon drawn in the corner when the "Featured badge" toggle is on
-    x: CANVAS_WIDTH - 14, y: 14,
-    radius: 26,
-    font: "bold 9px Arial",
-    textColor: "#ffffff",
-    label: "★"
+  // 4 stats laid out in a row near the bottom
+  statRow: {
+    y: 388,
+    labelFont: `10px ${FONT_REGULAR}`,
+    valueFont: `bold 15px ${FONT_BOLD}`,
+    labelColor: "#888888",
+    valueColor: "#111111",
+    columns: [
+      { key: "power", x: 20, label: "POWER" },
+      { key: "range", x: 110, label: "RANGE" },
+      { key: "defrate", x: 200, label: "DEF. RATE" },
+      { key: "fortify", x: 290, label: "FORTIFY" }
+    ]
+  },
+  defDamage: {
+    x: 15, y: 412,
+    font: `12px ${FONT_REGULAR}`,
+    color: "#555555",
+    align: "left",
+    prefix: "Def. Damage: "
   }
 };
 
 /* ============================================================
-   PRESETS
+   DEFENSE DATA
    ------------------------------------------------------------
-   Selecting one of these in the "Preset" dropdown fills in the
-   listed fields below, but every field stays a normal, editable
-   input afterwards — nothing gets locked.
+   Selecting a Defense auto-fills Mana, DU, Hero, and (if set)
+   Targeting Priority. Every one of those fields stays editable
+   afterwards — this just fills in a starting value. Defenses
+   that omit "targetingPriority" leave the field at its default
+   ("Special") when selected.
+
+   Replace this with your real defense list. "icon" refers to a
+   filename in assets/ (also listed in assets/manifest.json).
    ============================================================ */
 
-const PRESETS = {
-  "preset-a": {
-    category: "LIMITED EDITION",
-    title: "Sunburst",
-    subtitle: "Radiant Edition",
-    asset: "asset-01.png",
-    stat: 80,
-    color: "#d97757",
-    description: "A bold example preset that fills in several fields at once, including the asset image.",
-    footer: "made with the generator"
-  },
-  "preset-b": {
-    category: "EXCLUSIVE DROP",
-    title: "Deep Sea",
-    subtitle: "Deep Sea Series",
-    asset: "asset-02.png",
-    stat: 55,
-    color: "#3a5a78",
-    description: "A second example preset — swap these values out for your own real presets.",
-    footer: "one of a kind"
-  },
-  "preset-c": {
-    category: "ARCHIVE",
-    title: "Meadow",
-    subtitle: "Meadow Collection",
-    asset: "asset-03.png",
-    stat: 65,
-    color: "#7a9e5b",
-    description: "A third example preset. Add or remove keys here to control exactly which fields it fills.",
-    footer: "not for resale"
-  }
+const DEFENSES = {
+  "Defense A": { hero: "Hero Alpha", mana: 150, du: 4, icon: "asset-01.png" },
+  "Defense B": { hero: "Hero Beta", mana: 200, du: 6, icon: "asset-02.png" },
+  "Defense C": { hero: "Hero Gamma", mana: 120, du: 3, icon: "asset-03.png", targetingPriority: "N/A" },
+  "Defense D": { hero: "Hero Delta", mana: 250, du: 8, icon: "asset-04.png" },
+  "Defense E": { hero: "Hero Epsilon", mana: 180, du: 5, icon: "asset-05.png", targetingPriority: "N/A" }
 };
+
+const DEFAULT_TARGETING = "Special";
 
 /* ============================================================
    STATE + ELEMENTS
@@ -134,31 +139,29 @@ const coordReadout = document.getElementById("coord-readout");
 const themeToggle = document.getElementById("theme-toggle");
 
 const els = {
-  preset: document.getElementById("f-preset"),
-  category: document.getElementById("f-category"),
-  title: document.getElementById("f-title"),
-  subtitle: document.getElementById("f-subtitle"),
+  level: document.getElementById("f-level"),
+  defense: document.getElementById("f-defense"),
+  fusion: document.getElementById("f-fusion"),
+  mana: document.getElementById("f-mana"),
+  du: document.getElementById("f-du"),
+  hero: document.getElementById("f-hero"),
+  targeting: document.getElementById("f-targeting"),
+  fusionReq: document.getElementById("f-fusion-req"),
+  runeReq: document.getElementById("f-rune-req"),
+  power: document.getElementById("f-power"),
+  range: document.getElementById("f-range"),
+  defrate: document.getElementById("f-defrate"),
+  fortify: document.getElementById("f-fortify"),
+  defdamage: document.getElementById("f-defdamage"),
   asset: document.getElementById("f-asset"),
-  stat: document.getElementById("f-stat"),
-  statOut: document.getElementById("f-stat-out"),
-  description: document.getElementById("f-description"),
-  id: document.getElementById("f-id"),
-  date: document.getElementById("f-date"),
-  footer: document.getElementById("f-footer"),
-  color: document.getElementById("f-color"),
-  featured: document.getElementById("f-featured"),
   grid: document.getElementById("f-grid")
 };
 
-let templateImg = null;
+let templateImages = { normal: null, fusion: null };
 let assetImgCache = {}; // filename -> loaded HTMLImageElement
 
 /* ============================================================
    THEME (light/dark)
-   ------------------------------------------------------------
-   The <head> already sets data-theme on <html> before this file
-   loads (see index.html), defaulting to dark. This just wires up
-   the toggle button and remembers the choice.
    ============================================================ */
 
 function currentTheme() {
@@ -179,7 +182,65 @@ function toggleTheme() {
 }
 
 /* ============================================================
-   LOAD TEMPLATE + MANIFEST, THEN INITIAL RENDER
+   FONT LOADING (Poppins)
+   ------------------------------------------------------------
+   Loaded via the Font Loading API so the canvas can use it as
+   soon as it's ready. If the files aren't in assets/fonts/ yet,
+   this just warns and the canvas falls back to Arial.
+   ============================================================ */
+
+async function loadFonts() {
+  try {
+    const regular = new FontFace("Poppins", "url(assets/fonts/Poppins-Regular.ttf)", { weight: "400", style: "normal" });
+    const bold = new FontFace("Poppins", "url(assets/fonts/Poppins-bold.ttf)", { weight: "700", style: "normal" });
+    const [loadedRegular, loadedBold] = await Promise.all([regular.load(), bold.load()]);
+    document.fonts.add(loadedRegular);
+    document.fonts.add(loadedBold);
+  } catch (e) {
+    console.warn("Poppins font files not found in assets/fonts/ — falling back to Arial until they're added.", e);
+  }
+}
+
+/* ============================================================
+   NUMBER / PERCENTAGE FORMATTING
+   ============================================================ */
+
+// Positive integers only. Anything over 9999 is abbreviated with "k"
+// (e.g. 12345 -> "12k"). No comma separators. Values won't exceed
+// 30000 per spec, so no further abbreviation is needed.
+function formatStatNumber(raw) {
+  const n = Math.max(0, parseInt(raw, 10) || 0);
+  if (n > 9999) return Math.floor(n / 1000) + "k";
+  return String(n);
+}
+
+// Strips a text input down to digits only, live, as the user types.
+function sanitizeIntegerInput(el) {
+  const cleaned = el.value.replace(/[^0-9]/g, "");
+  el.value = cleaned;
+}
+
+// Percentage with a leading "+ " and exactly 3 decimal places,
+// e.g. 12.345 -> "+ 12.345%".
+function formatDefDamage(raw) {
+  const n = Math.max(0, parseFloat(raw) || 0);
+  return `+ ${n.toFixed(3)}%`;
+}
+
+// Restricts a text input, live, to digits with up to 3 decimal places.
+function sanitizeDecimalInput(el) {
+  let cleaned = el.value.replace(/[^0-9.]/g, "");
+  const firstDot = cleaned.indexOf(".");
+  if (firstDot !== -1) {
+    cleaned = cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, "");
+    const [intPart, decPart] = cleaned.split(".");
+    cleaned = intPart + "." + decPart.slice(0, 3);
+  }
+  el.value = cleaned;
+}
+
+/* ============================================================
+   INIT
    ============================================================ */
 
 function loadImage(src) {
@@ -191,21 +252,37 @@ function loadImage(src) {
   });
 }
 
+function populateDefenseAndHeroOptions() {
+  const defenseNames = Object.keys(DEFENSES);
+  els.defense.innerHTML =
+    `<option value="" selected>-- Select Defense --</option>` +
+    defenseNames.map(name => `<option value="${name}">${name}</option>`).join("");
+
+  const heroNames = [...new Set(defenseNames.map(name => DEFENSES[name].hero))];
+  els.hero.innerHTML =
+    `<option value="" selected>-- Select Hero --</option>` +
+    heroNames.map(h => `<option value="${h}">${h}</option>`).join("");
+}
+
 async function init() {
   updateThemeButton();
   themeToggle.addEventListener("click", toggleTheme);
 
-  // Load the template background. If it's missing, draw a placeholder
-  // so the page still works before you've added your template file.
+  await loadFonts();
+  populateDefenseAndHeroOptions();
+
+  // Load both template variants up front so toggling Fusion is instant.
   try {
-    templateImg = await loadImage(TEMPLATE_SRC);
+    templateImages.normal = await loadImage(TEMPLATE_SRC);
   } catch (e) {
-    console.warn(e.message + " — using a placeholder background instead.");
-    templateImg = null;
+    console.warn(e.message);
+  }
+  try {
+    templateImages.fusion = await loadImage(FUSION_TEMPLATE_SRC);
+  } catch (e) {
+    console.warn(e.message);
   }
 
-  // Load the asset manifest (list of filenames in /assets) and
-  // populate the <select>.
   try {
     const res = await fetch(MANIFEST_SRC, { cache: "no-store" });
     const list = await res.json();
@@ -217,9 +294,6 @@ async function init() {
     els.asset.innerHTML = `<option value="">(no assets found)</option>`;
   }
 
-  // Default date field to today
-  els.date.value = new Date().toISOString().slice(0, 10);
-
   attachListeners();
   render();
 }
@@ -228,19 +302,25 @@ function attachListeners() {
   Object.values(els).forEach(el => {
     el.addEventListener("input", render);
   });
-  els.stat.addEventListener("input", () => {
-    els.statOut.textContent = els.stat.value;
+
+  // Integer-only fields
+  [els.power, els.range, els.defrate, els.fortify].forEach(el => {
+    el.addEventListener("input", () => sanitizeIntegerInput(el));
   });
 
-  // Preset dropdown: fills in several other fields, but each one
-  // stays a normal editable input afterwards.
-  els.preset.addEventListener("change", () => {
-    const preset = PRESETS[els.preset.value];
-    if (!preset) return; // "-- Custom --" selected: leave everything as-is
-    Object.entries(preset).forEach(([key, value]) => {
-      if (els[key]) els[key].value = value;
-    });
-    if (els.stat) els.statOut.textContent = els.stat.value;
+  // Percentage field (up to 3 decimals)
+  els.defdamage.addEventListener("input", () => sanitizeDecimalInput(els.defdamage));
+
+  // Defense dropdown: auto-fills Mana, DU, Hero, Targeting Priority,
+  // and the icon — every one of those stays editable afterwards.
+  els.defense.addEventListener("change", () => {
+    const config = DEFENSES[els.defense.value];
+    if (!config) return; // "-- Select Defense --" chosen: leave fields as-is
+    els.mana.value = config.mana ?? "";
+    els.du.value = config.du ?? "";
+    els.hero.value = config.hero ?? "";
+    els.targeting.value = config.targetingPriority || DEFAULT_TARGETING;
+    if (config.icon) els.asset.value = config.icon;
     render();
   });
 
@@ -259,32 +339,6 @@ function attachListeners() {
 /* ============================================================
    DRAWING HELPERS
    ============================================================ */
-
-function drawLetterSpacedText(text, x, y, spacing) {
-  let cursorX = x;
-  for (const ch of text) {
-    ctx.fillText(ch, cursorX, y);
-    cursorX += ctx.measureText(ch).width + spacing;
-  }
-}
-
-function wrapText(text, maxWidth, lineHeight, x, y) {
-  const words = text.split(/\s+/);
-  let line = "";
-  let curY = y;
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line ? line + " " + words[i] : words[i];
-    if (ctx.measureText(testLine).width > maxWidth && line) {
-      ctx.fillText(line, x, curY);
-      line = words[i];
-      curY += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  if (line) ctx.fillText(line, x, curY);
-  return curY; // y of last line drawn, in case you want to place things after it
-}
 
 function drawGrid() {
   ctx.save();
@@ -310,22 +364,6 @@ function drawGrid() {
   ctx.restore();
 }
 
-function drawFeaturedBadge(accent) {
-  const b = LAYOUT.featuredBadge;
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-  ctx.fillStyle = accent;
-  ctx.fill();
-  ctx.fillStyle = b.textColor;
-  ctx.font = b.font;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(b.label, b.x, b.y + 12);
-  ctx.restore();
-  ctx.textBaseline = "alphabetic"; // reset default for later draws
-}
-
 /* ============================================================
    MAIN RENDER
    ============================================================ */
@@ -333,111 +371,105 @@ function drawFeaturedBadge(accent) {
 async function render() {
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-  // 1. Background template
-  if (templateImg) {
-    ctx.drawImage(templateImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  } else {
-    ctx.fillStyle = "#eeeeee";
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    ctx.fillStyle = "#999999";
-    ctx.font = "12px Arial";
-    ctx.fillText("assets/template.png not found", 20, 20);
-  }
-
-  const accent = els.color.value;
-
-  // 2. Category tag
-  const cat = LAYOUT.category;
-  ctx.fillStyle = cat.color;
-  ctx.font = cat.font;
-  ctx.textAlign = "left";
-  drawLetterSpacedText(els.category.value.toUpperCase(), cat.x, cat.y, cat.letterSpacing);
-
-  // 3. Title
-  const t = LAYOUT.title;
-  ctx.fillStyle = t.color;
-  ctx.font = t.font;
-  ctx.textAlign = t.align;
-  ctx.fillText(els.title.value, t.x, t.y);
-
-  // 4. Subtitle
-  const st = LAYOUT.subtitle;
-  ctx.fillStyle = st.color;
-  ctx.font = st.font;
-  ctx.textAlign = st.align;
-  ctx.fillText(els.subtitle.value, st.x, st.y);
-
-  // 5. Asset image
-  const a = LAYOUT.asset;
-  const chosen = els.asset.value;
-  if (chosen) {
-    let img = assetImgCache[chosen];
+  // 1. Icon — drawn FIRST, underneath the template.
+  const iconBox = LAYOUT.icon;
+  const chosenAsset = els.asset.value;
+  if (chosenAsset) {
+    let img = assetImgCache[chosenAsset];
     if (!img) {
       try {
-        img = await loadImage("assets/" + chosen);
-        assetImgCache[chosen] = img;
+        img = await loadImage("assets/" + chosenAsset);
+        assetImgCache[chosenAsset] = img;
       } catch (e) {
         console.warn(e.message);
       }
     }
     if (img) {
-      // fit inside box, preserve aspect ratio, center it
-      const scale = Math.min(a.width / img.width, a.height / img.height);
+      const scale = Math.min(iconBox.width / img.width, iconBox.height / img.height);
       const w = img.width * scale;
       const h = img.height * scale;
-      const dx = a.x + (a.width - w) / 2;
-      const dy = a.y + (a.height - h) / 2;
+      const dx = iconBox.x + (iconBox.width - w) / 2;
+      const dy = iconBox.y + (iconBox.height - h) / 2;
       ctx.drawImage(img, dx, dy, w, h);
     }
   }
 
-  // 6. Stat bar
-  const sb = LAYOUT.statBar;
-  const pct = Math.max(0, Math.min(100, Number(els.stat.value))) / 100;
-  ctx.fillStyle = sb.trackColor;
-  ctx.fillRect(sb.x, sb.y, sb.width, sb.height);
-  ctx.fillStyle = accent;
-  ctx.fillRect(sb.x, sb.y, sb.width * pct, sb.height);
-  if (sb.label) {
-    ctx.fillStyle = "#555555";
-    ctx.font = "10px Arial";
-    ctx.textAlign = "left";
-    ctx.fillText(`${els.stat.value}/100`, sb.x, sb.y - 4);
+  // 2. Template — drawn on top of the icon. The template image
+  // should have a transparent window over the icon box for it to
+  // show through.
+  const templateImg = els.fusion.checked ? templateImages.fusion : templateImages.normal;
+  if (templateImg) {
+    ctx.drawImage(templateImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  } else {
+    ctx.fillStyle = "rgba(238,238,238,0.6)";
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    ctx.fillStyle = "#999999";
+    ctx.font = "12px Arial";
+    ctx.fillText(
+      els.fusion.checked ? "assets/fusion-template.png not found" : "assets/template.png not found",
+      20, 20
+    );
   }
 
-  // 7. Description (wrapped)
-  const d = LAYOUT.description;
-  ctx.fillStyle = d.color;
-  ctx.font = d.font;
-  ctx.textAlign = d.align;
-  wrapText(els.description.value, d.maxWidth, d.lineHeight, d.x, d.y);
+  // 3. Defense name (title)
+  const dn = LAYOUT.defenseName;
+  ctx.fillStyle = dn.color;
+  ctx.font = dn.font;
+  ctx.textAlign = dn.align;
+  ctx.fillText(els.defense.value || "— Defense —", dn.x, dn.y);
 
-  // 8. ID
-  const idc = LAYOUT.id;
-  ctx.fillStyle = idc.color;
-  ctx.font = idc.font;
-  ctx.textAlign = idc.align;
-  ctx.fillText(els.id.value, idc.x, idc.y);
+  // 4. Level
+  drawLabeledText(LAYOUT.level, els.level.value);
 
-  // 9. Date
-  const dt = LAYOUT.date;
-  ctx.fillStyle = dt.color;
-  ctx.font = dt.font;
-  ctx.textAlign = dt.align;
-  ctx.fillText(els.date.value, dt.x, dt.y);
+  // 5. Hero
+  drawLabeledText(LAYOUT.hero, els.hero.value);
 
-  // 10. Footer
-  const f = LAYOUT.footer;
-  ctx.fillStyle = f.color;
-  ctx.font = f.font;
-  ctx.textAlign = f.align;
-  ctx.fillText(els.footer.value, f.x, f.y);
+  // 6. Mana
+  drawLabeledText(LAYOUT.mana, els.mana.value);
 
-  // 11. Featured badge (only drawn if the toggle is on)
-  if (els.featured.checked) drawFeaturedBadge(accent);
+  // 7. DU
+  drawLabeledText(LAYOUT.du, els.du.value);
+
+  // 8. Fusion Requirement
+  drawLabeledText(LAYOUT.fusionReq, els.fusionReq.value);
+
+  // 9. Rune Requirement
+  drawLabeledText(LAYOUT.runeReq, els.runeReq.value);
+
+  // 10. Targeting Priority
+  drawLabeledText(LAYOUT.targeting, els.targeting.value);
+
+  // 11. Stat row: Power, Range, Def. Rate, Fortify
+  const sr = LAYOUT.statRow;
+  sr.columns.forEach(col => {
+    const rawValue = els[col.key].value;
+    ctx.fillStyle = sr.labelColor;
+    ctx.font = sr.labelFont;
+    ctx.textAlign = "left";
+    ctx.fillText(col.label, col.x, sr.y - 14);
+
+    ctx.fillStyle = sr.valueColor;
+    ctx.font = sr.valueFont;
+    ctx.fillText(formatStatNumber(rawValue), col.x, sr.y);
+  });
+
+  // 12. Def. Damage
+  drawLabeledText(LAYOUT.defDamage, formatDefDamage(els.defdamage.value), true);
 
   // Optional position grid overlay (never included in the downloaded PNG)
   if (els.grid.checked) drawGrid();
+}
+
+// Draws a prefix + value pair using a LAYOUT entry's font/color/position.
+// Pass preFormatted=true if `value` is already the exact string to show
+// (skips prepending LAYOUT's own prefix a second time isn't an issue here
+// since defDamage's prefix is still applied below).
+function drawLabeledText(layout, value, preFormatted) {
+  ctx.fillStyle = layout.color;
+  ctx.font = layout.font;
+  ctx.textAlign = layout.align;
+  const text = preFormatted ? layout.prefix + value : layout.prefix + (value || "—");
+  ctx.fillText(text, layout.x, layout.y);
 }
 
 /* ============================================================
@@ -445,6 +477,11 @@ async function render() {
    ============================================================ */
 
 function downloadImage() {
+  if (!els.hero.value) {
+    alert("Please select a Hero before downloading (Hero is required).");
+    return;
+  }
+
   const wasGridOn = els.grid.checked;
   if (wasGridOn) {
     els.grid.checked = false;
@@ -455,7 +492,7 @@ function downloadImage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = (els.title.value || "image").replace(/\s+/g, "_") + ".png";
+    a.download = (els.defense.value || "card").replace(/\s+/g, "_") + ".png";
     a.click();
     URL.revokeObjectURL(url);
 

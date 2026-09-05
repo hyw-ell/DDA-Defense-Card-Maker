@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Generator</title>
+<title>Defense Card Generator</title>
 <script>
   // Applied before the stylesheet paints, so there's no flash of the
   // wrong theme. Defaults to dark mode if nothing has been saved yet.
@@ -21,8 +21,8 @@
   <header>
     <div class="header-row">
       <div>
-        <h1>Image Generator</h1>
-        <p>Fill in the fields, pick an asset, then download the result.</p>
+        <h1>Defense Card Generator</h1>
+        <p>Fill in the fields, pick a defense, then download the result.</p>
       </div>
       <button type="button" id="theme-toggle" aria-label="Toggle light/dark mode"></button>
     </div>
@@ -34,92 +34,122 @@
     <form id="card-form" class="panel">
 
       <div class="field">
-        <label for="f-preset">Preset <span class="hint">(fills in several fields below — still editable after)</span></label>
-        <select id="f-preset">
-          <option value="">-- Custom --</option>
-          <option value="preset-a">Preset: Sunburst</option>
-          <option value="preset-b">Preset: Deep Sea</option>
-          <option value="preset-c">Preset: Meadow</option>
+        <label for="f-level">Level</label>
+        <select id="f-level">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="Max">Max</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="f-defense">Defense <span class="hint">(fills in Mana, DU, Hero and Targeting Priority — still editable after)</span></label>
+        <select id="f-defense">
+          <option value="" selected>-- Select Defense --</option>
+        </select>
+      </div>
+
+      <div class="field toggle-field">
+        <label for="f-fusion">
+          <span>Fusion <span class="hint">(uses fusion-template.png when on, template.png when off)</span></span>
+          <span class="switch">
+            <input type="checkbox" id="f-fusion" checked>
+            <span class="slider"></span>
+          </span>
+        </label>
+      </div>
+
+      <hr class="divider">
+
+      <div class="field">
+        <label for="f-mana">Mana <span class="hint">(auto-fill)</span></label>
+        <input type="text" id="f-mana" value="" inputmode="numeric" placeholder="—">
+      </div>
+
+      <div class="field">
+        <label for="f-du">DU <span class="hint">(auto-fill)</span></label>
+        <input type="text" id="f-du" value="" inputmode="numeric" placeholder="—">
+      </div>
+
+      <div class="field">
+        <label for="f-hero">Hero <span class="hint">(auto-fill, required)</span></label>
+        <select id="f-hero" required>
+          <option value="" selected>-- Select Hero --</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="f-targeting">Targeting Priority</label>
+        <select id="f-targeting">
+          <option value="Air">Air</option>
+          <option value="Special" selected>Special</option>
+          <option value="Fodder">Fodder</option>
+          <option value="Strong">Strong</option>
+          <option value="Any">Any</option>
+          <option value="N/A">N/A</option>
         </select>
       </div>
 
       <hr class="divider">
 
       <div class="field">
-        <label for="f-category">Category tag <span class="hint">(pick a suggestion or type your own)</span></label>
-        <input type="text" id="f-category" list="dl-category" value="LIMITED EDITION" maxlength="24">
-        <datalist id="dl-category">
-          <option value="LIMITED EDITION">
-          <option value="STANDARD">
-          <option value="EXCLUSIVE DROP">
-          <option value="ARCHIVE">
+        <label for="f-fusion-req">Fusion Requirement <span class="hint">(pick a suggestion or type your own)</span></label>
+        <input type="text" id="f-fusion-req" list="dl-fusion-req" value="" maxlength="30">
+        <datalist id="dl-fusion-req">
+          <option value="Required">
+          <option value="Optional">
+          <option value="Highly Recommended">
+          <option value="Recommended">
         </datalist>
       </div>
 
       <div class="field">
-        <label for="f-title">Title</label>
-        <input type="text" id="f-title" value="Field Name Here" maxlength="30">
-      </div>
-
-      <div class="field">
-        <label for="f-subtitle">Subtitle <span class="hint">(pick a suggestion or type your own)</span></label>
-        <input type="text" id="f-subtitle" list="dl-subtitle" value="A short subtitle" maxlength="40">
-        <datalist id="dl-subtitle">
-          <option value="Radiant Edition">
-          <option value="Deep Sea Series">
-          <option value="Meadow Collection">
-          <option value="Collector's Cut">
+        <label for="f-rune-req">Rune Requirement <span class="hint">(pick a suggestion or type your own)</span></label>
+        <input type="text" id="f-rune-req" list="dl-rune-req" value="" maxlength="30">
+        <datalist id="dl-rune-req">
+          <option value="Required">
+          <option value="Optional">
+          <option value="Highly Recommended">
+          <option value="Recommended">
+          <option value="Don't use">
         </datalist>
       </div>
 
+      <hr class="divider">
+
       <div class="field">
-        <label for="f-asset">Asset image</label>
+        <label for="f-power">Power</label>
+        <input type="text" id="f-power" inputmode="numeric" value="0">
+      </div>
+
+      <div class="field">
+        <label for="f-range">Range</label>
+        <input type="text" id="f-range" inputmode="numeric" value="0">
+      </div>
+
+      <div class="field">
+        <label for="f-defrate">Def. Rate</label>
+        <input type="text" id="f-defrate" inputmode="numeric" value="0">
+      </div>
+
+      <div class="field">
+        <label for="f-fortify">Fortify</label>
+        <input type="text" id="f-fortify" inputmode="numeric" value="0">
+      </div>
+
+      <div class="field">
+        <label for="f-defdamage">Def. Damage <span class="hint">(%, up to 3 decimals)</span></label>
+        <input type="text" id="f-defdamage" inputmode="decimal" value="0">
+      </div>
+
+      <hr class="divider">
+
+      <div class="field">
+        <label for="f-asset">Icon asset</label>
         <select id="f-asset"></select>
-      </div>
-
-      <div class="field">
-        <label for="f-stat">Stat value <span id="f-stat-out">50</span>/100</label>
-        <input type="range" id="f-stat" min="0" max="100" value="50">
-      </div>
-
-      <div class="field">
-        <label for="f-description">Description</label>
-        <textarea id="f-description" rows="3" maxlength="160">A short block of descriptive text that will wrap across multiple lines on the card.</textarea>
-      </div>
-
-      <div class="field">
-        <label for="f-id">ID number</label>
-        <input type="text" id="f-id" value="#0001" maxlength="10">
-      </div>
-
-      <div class="field">
-        <label for="f-date">Date</label>
-        <input type="date" id="f-date">
-      </div>
-
-      <div class="field">
-        <label for="f-footer">Footer note <span class="hint">(pick a suggestion or type your own)</span></label>
-        <input type="text" id="f-footer" list="dl-footer" value="made with the generator" maxlength="40">
-        <datalist id="dl-footer">
-          <option value="made with the generator">
-          <option value="not for resale">
-          <option value="one of a kind">
-        </datalist>
-      </div>
-
-      <div class="field">
-        <label for="f-color">Accent color</label>
-        <input type="color" id="f-color" value="#d97757">
-      </div>
-
-      <div class="field toggle-field">
-        <label for="f-featured">
-          <span>Featured badge</span>
-          <span class="switch">
-            <input type="checkbox" id="f-featured">
-            <span class="slider"></span>
-          </span>
-        </label>
       </div>
 
       <div class="field checkbox-field">

@@ -1,3 +1,22 @@
+/* If these files aren't present yet, the browser just silently falls
+   back to the next font in the stack (see style rules further down) —
+   nothing breaks. Drop your real files into assets/fonts/ with these
+   exact names. */
+@font-face {
+  font-family: "Poppins";
+  src: url("assets/fonts/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("assets/fonts/Poppins-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root,
 [data-theme="dark"] {
   --bg: #15171a;
