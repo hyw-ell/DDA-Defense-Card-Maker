@@ -135,7 +135,6 @@ const DEFAULT_TARGETING = "Special";
 
 const canvas = document.getElementById("card-canvas");
 const ctx = canvas.getContext("2d");
-const coordReadout = document.getElementById("coord-readout");
 const themeToggle = document.getElementById("theme-toggle");
 
 const els = {
@@ -153,8 +152,7 @@ const els = {
   defrate: document.getElementById("f-defrate"),
   fortify: document.getElementById("f-fortify"),
   defdamage: document.getElementById("f-defdamage"),
-  asset: document.getElementById("f-asset"),
-  grid: document.getElementById("f-grid")
+  asset: document.getElementById("f-asset")
 };
 
 let templateImages = { normal: null, fusion: null };
@@ -325,44 +323,11 @@ function attachListeners() {
   });
 
   document.getElementById("download-btn").addEventListener("click", downloadImage);
-
-  canvas.addEventListener("click", (evt) => {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const x = Math.round((evt.clientX - rect.left) * scaleX);
-    const y = Math.round((evt.clientY - rect.top) * scaleY);
-    coordReadout.textContent = `x: ${x}, y: ${y}`;
-  });
 }
 
 /* ============================================================
    DRAWING HELPERS
    ============================================================ */
-
-function drawGrid() {
-  ctx.save();
-  ctx.strokeStyle = "rgba(217, 119, 87, 0.35)";
-  ctx.fillStyle = "rgba(217, 119, 87, 0.9)";
-  ctx.font = "9px monospace";
-  ctx.lineWidth = 1;
-
-  for (let x = 0; x <= CANVAS_WIDTH; x += 20) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, CANVAS_HEIGHT);
-    ctx.stroke();
-    if (x % 40 === 0) ctx.fillText(String(x), x + 2, 10);
-  }
-  for (let y = 0; y <= CANVAS_HEIGHT; y += 20) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(CANVAS_WIDTH, y);
-    ctx.stroke();
-    if (y % 40 === 0) ctx.fillText(String(y), 2, y - 2);
-  }
-  ctx.restore();
-}
 
 /* ============================================================
    MAIN RENDER
@@ -455,9 +420,6 @@ async function render() {
 
   // 12. Def. Damage
   drawLabeledText(LAYOUT.defDamage, formatDefDamage(els.defdamage.value), true);
-
-  // Optional position grid overlay (never included in the downloaded PNG)
-  if (els.grid.checked) drawGrid();
 }
 
 // Draws a prefix + value pair using a LAYOUT entry's font/color/position.
@@ -477,15 +439,15 @@ function drawLabeledText(layout, value, preFormatted) {
    ============================================================ */
 
 function downloadImage() {
-  if (!els.hero.value) {
-    alert("Please select a Hero before downloading (Hero is required).");
-    return;
-  }
+  const missing = [];
+  if (!els.defense.value) missing.push("Defense");
+  if (!els.fusionReq.value.trim()) missing.push("Fusion Requirement");
+  if (!els.runeReq.value.trim()) missing.push("Rune Requirement");
+  if (!els.targeting.value) missing.push("Targeting Priority");
 
-  const wasGridOn = els.grid.checked;
-  if (wasGridOn) {
-    els.grid.checked = false;
-    render();
+  if (missing.length) {
+    alert("Please fill in the following required field(s) before downloading:\n" + missing.join(", "));
+    return;
   }
 
   canvas.toBlob((blob) => {
@@ -495,11 +457,6 @@ function downloadImage() {
     a.download = (els.defense.value || "card").replace(/\s+/g, "_") + ".png";
     a.click();
     URL.revokeObjectURL(url);
-
-    if (wasGridOn) {
-      els.grid.checked = true;
-      render();
-    }
   }, "image/png");
 }
 

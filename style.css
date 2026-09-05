@@ -237,6 +237,45 @@ textarea {
   transform: translateX(18px);
 }
 
+.additional-options {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 12px 4px;
+  margin-bottom: 14px;
+}
+
+.additional-options summary {
+  cursor: pointer;
+  padding: 10px 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+  list-style: none;
+}
+
+.additional-options summary::-webkit-details-marker {
+  display: none;
+}
+
+.additional-options summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.15s ease;
+}
+
+.additional-options[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.additional-options .field {
+  padding-top: 4px;
+}
+
+.additional-options .field:last-child {
+  margin-bottom: 10px;
+}
+
 .preview-panel {
   position: sticky;
   top: 20px;
@@ -256,10 +295,3 @@ textarea {
   background: #fafafa;
 }
 
-.coord-readout {
-  font-size: 0.78rem;
-  color: var(--muted);
-  text-align: center;
-  min-height: 1.2em;
-  margin: 0;
-}

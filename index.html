@@ -33,28 +33,17 @@
     <!-- FORM -->
     <form id="card-form" class="panel">
 
+      <!-- Section 1: Defense + Fusion -->
       <div class="field">
-        <label for="f-level">Level</label>
-        <select id="f-level">
-          <option value="1" selected>1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="Max">Max</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="f-defense">Defense <span class="hint">(fills in Mana, DU, Hero and Targeting Priority — still editable after)</span></label>
-        <select id="f-defense">
+        <label for="f-defense">Defense</label>
+        <select id="f-defense" required>
           <option value="" selected>-- Select Defense --</option>
         </select>
       </div>
 
       <div class="field toggle-field">
         <label for="f-fusion">
-          <span>Fusion <span class="hint">(uses fusion-template.png when on, template.png when off)</span></span>
+          <span>Fusion</span>
           <span class="switch">
             <input type="checkbox" id="f-fusion" checked>
             <span class="slider"></span>
@@ -64,26 +53,33 @@
 
       <hr class="divider">
 
+      <!-- Section 2: Requirements + Targeting -->
       <div class="field">
-        <label for="f-mana">Mana <span class="hint">(auto-fill)</span></label>
-        <input type="text" id="f-mana" value="" inputmode="numeric" placeholder="—">
+        <label for="f-fusion-req">Fusion Requirement</label>
+        <input type="text" id="f-fusion-req" list="dl-fusion-req" value="" maxlength="30" required>
+        <datalist id="dl-fusion-req">
+          <option value="Required">
+          <option value="Optional">
+          <option value="Highly Recommended">
+          <option value="Recommended">
+        </datalist>
       </div>
 
       <div class="field">
-        <label for="f-du">DU <span class="hint">(auto-fill)</span></label>
-        <input type="text" id="f-du" value="" inputmode="numeric" placeholder="—">
-      </div>
-
-      <div class="field">
-        <label for="f-hero">Hero <span class="hint">(auto-fill, required)</span></label>
-        <select id="f-hero" required>
-          <option value="" selected>-- Select Hero --</option>
-        </select>
+        <label for="f-rune-req">Rune Requirement</label>
+        <input type="text" id="f-rune-req" list="dl-rune-req" value="" maxlength="30" required>
+        <datalist id="dl-rune-req">
+          <option value="Required">
+          <option value="Optional">
+          <option value="Highly Recommended">
+          <option value="Recommended">
+          <option value="Don't use">
+        </datalist>
       </div>
 
       <div class="field">
         <label for="f-targeting">Targeting Priority</label>
-        <select id="f-targeting">
+        <select id="f-targeting" required>
           <option value="Air">Air</option>
           <option value="Special" selected>Special</option>
           <option value="Fodder">Fodder</option>
@@ -95,31 +91,7 @@
 
       <hr class="divider">
 
-      <div class="field">
-        <label for="f-fusion-req">Fusion Requirement <span class="hint">(pick a suggestion or type your own)</span></label>
-        <input type="text" id="f-fusion-req" list="dl-fusion-req" value="" maxlength="30">
-        <datalist id="dl-fusion-req">
-          <option value="Required">
-          <option value="Optional">
-          <option value="Highly Recommended">
-          <option value="Recommended">
-        </datalist>
-      </div>
-
-      <div class="field">
-        <label for="f-rune-req">Rune Requirement <span class="hint">(pick a suggestion or type your own)</span></label>
-        <input type="text" id="f-rune-req" list="dl-rune-req" value="" maxlength="30">
-        <datalist id="dl-rune-req">
-          <option value="Required">
-          <option value="Optional">
-          <option value="Highly Recommended">
-          <option value="Recommended">
-          <option value="Don't use">
-        </datalist>
-      </div>
-
-      <hr class="divider">
-
+      <!-- Section 3: Defense stats -->
       <div class="field">
         <label for="f-power">Power</label>
         <input type="text" id="f-power" inputmode="numeric" value="0">
@@ -141,20 +113,50 @@
       </div>
 
       <div class="field">
-        <label for="f-defdamage">Def. Damage <span class="hint">(%, up to 3 decimals)</span></label>
+        <label for="f-defdamage">Def. Damage</label>
         <input type="text" id="f-defdamage" inputmode="decimal" value="0">
       </div>
 
       <hr class="divider">
 
-      <div class="field">
-        <label for="f-asset">Icon asset</label>
-        <select id="f-asset"></select>
-      </div>
+      <!-- Additional Options (rarely need to change) -->
+      <details class="additional-options">
+        <summary>Additional Options</summary>
 
-      <div class="field checkbox-field">
-        <label for="f-grid"><input type="checkbox" id="f-grid"> Show position grid (for lining up coordinates)</label>
-      </div>
+        <div class="field">
+          <label for="f-level">Level</label>
+          <select id="f-level">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="Max">Max</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-mana">Mana</label>
+          <input type="text" id="f-mana" value="" inputmode="numeric" placeholder="—">
+        </div>
+
+        <div class="field">
+          <label for="f-du">DU</label>
+          <input type="text" id="f-du" value="" inputmode="numeric" placeholder="—">
+        </div>
+
+        <div class="field">
+          <label for="f-hero">Hero</label>
+          <select id="f-hero">
+            <option value="" selected>-- Select Hero --</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-asset">Defense Icon</label>
+          <select id="f-asset"></select>
+        </div>
+      </details>
 
       <button type="button" id="download-btn">Download PNG</button>
 
@@ -163,7 +165,6 @@
     <!-- PREVIEW -->
     <div class="panel preview-panel">
       <canvas id="card-canvas" width="360" height="430"></canvas>
-      <p class="coord-readout" id="coord-readout">Click anywhere on the image to read its x, y coordinates.</p>
     </div>
 
   </div>

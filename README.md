@@ -61,32 +61,41 @@ all your defenses — you don't need to list heroes separately.
 ## 3. Positioning the fields
 
 Everything about where things are drawn lives in the `LAYOUT` object near
-the top of `script.js` (position, font, color per field).
+the top of `script.js` (position, font, color per field). Edit the `x` / `y`
+values there, save, and refresh to see the change.
 
-To reposition:
+## Form layout
 
-1. Open the site (locally or via GitHub Pages).
-2. Check **"Show position grid"** under the form — overlays a labeled
-   ruler on the preview (never included in the downloaded image).
-3. Click anywhere on the preview — the coordinates print below the canvas.
-4. Edit the corresponding `x` / `y` values in `LAYOUT`, save, refresh.
+The form is grouped into three sections, in order, plus a collapsible
+"Additional Options" section for fields you won't normally touch:
+
+1. **Defense** (required) and **Fusion** toggle
+2. **Fusion Requirement**, **Rune Requirement**, **Targeting Priority** — all required
+3. **Power**, **Range**, **Def. Rate**, **Fortify**, **Def. Damage** — all optional
+
+**Additional Options** (collapsed by default): Level, Mana, DU, Hero,
+Defense Icon.
 
 ## Field reference
 
-| Field | Type | Notes |
-|---|---|---|
-| Level | dropdown | 1–5, Max. Defaults to 1. |
-| Defense | dropdown | Drives auto-fill (see above). Defaults to unselected. |
-| Fusion | toggle | Defaults on. On = `fusion-template.png`, off = `template.png`. |
-| Mana | text | Auto-filled, blank by default, editable. |
-| DU | text | Auto-filled, blank by default, editable. |
-| Hero | dropdown | Auto-filled, **required** — blocks download if empty. |
-| Targeting Priority | dropdown | Air / Special / Fodder / Strong / Any / N/A. Defaults to Special; some defenses auto-fill N/A. |
-| Fusion Requirement | text + suggestions | Required, Optional, Highly Recommended, Recommended, or type your own. |
-| Rune Requirement | text + suggestions | Same as above, plus "Don't use". |
-| Power / Range / Def. Rate / Fortify | text | Positive integers only (non-digits stripped live). Displayed as-is up to 9999; above that, abbreviated as e.g. `12k` (values won't exceed 30000 per spec). No comma separators. |
-| Def. Damage | text | Percentage, up to 3 decimal places (extra digits stripped live). Displayed as `+ 12.345%`. |
-| Icon asset | dropdown | Pulled from `assets/manifest.json`. Auto-set by Defense, but still a normal dropdown you can override manually. |
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| Defense | dropdown | Yes | Drives auto-fill of Mana, DU, Hero, Defense Icon, Targeting Priority. |
+| Fusion | toggle | — | Defaults on. On = `fusion-template.png`, off = `template.png`. |
+| Fusion Requirement | text + suggestions | Yes | Required, Optional, Highly Recommended, Recommended, or type your own. |
+| Rune Requirement | text + suggestions | Yes | Same as above, plus "Don't use". |
+| Targeting Priority | dropdown | Yes | Air / Special / Fodder / Strong / Any / N/A. Defaults to Special; some defenses auto-fill N/A. |
+| Power / Range / Def. Rate / Fortify | text | No | Positive integers only (non-digits stripped live). Displayed as-is up to 9999; above that, abbreviated as e.g. `12k` (values won't exceed 30000 per spec). No comma separators. |
+| Def. Damage | text | No | Percentage, up to 3 decimal places (extra digits stripped live). Displayed as `+ 12.345%`. |
+| Level *(Additional Options)* | dropdown | — | 1–5, Max. Defaults to 1. |
+| Mana *(Additional Options)* | text | — | Auto-filled, blank by default, editable. |
+| DU *(Additional Options)* | text | — | Auto-filled, blank by default, editable. |
+| Hero *(Additional Options)* | dropdown | No | Auto-filled by Defense, still editable/overridable. |
+| Defense Icon *(Additional Options)* | dropdown | — | Pulled from `assets/manifest.json`. Auto-set by Defense, still overridable. |
+
+Downloading checks that Defense, Fusion Requirement, Rune Requirement, and
+Targeting Priority are filled in, and shows an alert naming anything
+missing rather than silently failing.
 
 ## 4. Light/dark mode
 
