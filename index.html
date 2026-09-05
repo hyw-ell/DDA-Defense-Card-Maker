@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Image Generator</title>
+<script>
+  // Applied before the stylesheet paints, so there's no flash of the
+  // wrong theme. Defaults to dark mode if nothing has been saved yet.
+  (function () {
+    var saved = localStorage.getItem("theme");
+    document.documentElement.setAttribute("data-theme", saved === "light" ? "light" : "dark");
+  })();
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,8 +19,13 @@
 <div class="wrap">
 
   <header>
-    <h1>Image Generator</h1>
-    <p>Fill in the fields, pick an asset, then download the result.</p>
+    <div class="header-row">
+      <div>
+        <h1>Image Generator</h1>
+        <p>Fill in the fields, pick an asset, then download the result.</p>
+      </div>
+      <button type="button" id="theme-toggle" aria-label="Toggle light/dark mode"></button>
+    </div>
   </header>
 
   <div class="layout">
@@ -21,8 +34,26 @@
     <form id="card-form" class="panel">
 
       <div class="field">
-        <label for="f-category">Category tag</label>
-        <input type="text" id="f-category" value="LIMITED EDITION" maxlength="24">
+        <label for="f-preset">Preset <span class="hint">(fills in several fields below — still editable after)</span></label>
+        <select id="f-preset">
+          <option value="">-- Custom --</option>
+          <option value="preset-a">Preset: Sunburst</option>
+          <option value="preset-b">Preset: Deep Sea</option>
+          <option value="preset-c">Preset: Meadow</option>
+        </select>
+      </div>
+
+      <hr class="divider">
+
+      <div class="field">
+        <label for="f-category">Category tag <span class="hint">(pick a suggestion or type your own)</span></label>
+        <input type="text" id="f-category" list="dl-category" value="LIMITED EDITION" maxlength="24">
+        <datalist id="dl-category">
+          <option value="LIMITED EDITION">
+          <option value="STANDARD">
+          <option value="EXCLUSIVE DROP">
+          <option value="ARCHIVE">
+        </datalist>
       </div>
 
       <div class="field">
@@ -31,8 +62,14 @@
       </div>
 
       <div class="field">
-        <label for="f-subtitle">Subtitle</label>
-        <input type="text" id="f-subtitle" value="A short subtitle" maxlength="40">
+        <label for="f-subtitle">Subtitle <span class="hint">(pick a suggestion or type your own)</span></label>
+        <input type="text" id="f-subtitle" list="dl-subtitle" value="A short subtitle" maxlength="40">
+        <datalist id="dl-subtitle">
+          <option value="Radiant Edition">
+          <option value="Deep Sea Series">
+          <option value="Meadow Collection">
+          <option value="Collector's Cut">
+        </datalist>
       </div>
 
       <div class="field">
@@ -61,13 +98,28 @@
       </div>
 
       <div class="field">
-        <label for="f-footer">Footer note</label>
-        <input type="text" id="f-footer" value="made with the generator" maxlength="40">
+        <label for="f-footer">Footer note <span class="hint">(pick a suggestion or type your own)</span></label>
+        <input type="text" id="f-footer" list="dl-footer" value="made with the generator" maxlength="40">
+        <datalist id="dl-footer">
+          <option value="made with the generator">
+          <option value="not for resale">
+          <option value="one of a kind">
+        </datalist>
       </div>
 
       <div class="field">
         <label for="f-color">Accent color</label>
         <input type="color" id="f-color" value="#d97757">
+      </div>
+
+      <div class="field toggle-field">
+        <label for="f-featured">
+          <span>Featured badge</span>
+          <span class="switch">
+            <input type="checkbox" id="f-featured">
+            <span class="slider"></span>
+          </span>
+        </label>
       </div>
 
       <div class="field checkbox-field">

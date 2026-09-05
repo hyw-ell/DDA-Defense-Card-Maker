@@ -48,12 +48,62 @@ To reposition:
 4. Edit the corresponding `x` / `y` values in `LAYOUT` in `script.js`, save,
    and refresh.
 
-There are currently 10 fields wired up as placeholders (category tag, title,
-subtitle, asset image, a stat bar, description, ID, date, footer note, and an
-accent color used by the stat bar). Rename the labels in `index.html` and
-adjust positions/fonts in `script.js` — the logic for each field type (plain
-text, wrapped text, image-fit, colored bar) is already written, so most of
-your editing will just be numbers.
+There are 12 fields wired up as placeholders: a preset picker, category tag,
+title, subtitle, asset image, a stat bar, description, ID, date, footer note,
+an accent color, and a featured-badge toggle. Rename the labels in
+`index.html` and adjust positions/fonts in `script.js` — the logic for each
+field type (plain text, wrapped text, image-fit, colored bar, toggleable
+badge) is already written, so most of your editing will just be numbers.
+
+## Light/dark mode
+
+The site defaults to dark mode. The toggle button (top right) flips a
+`data-theme` attribute on `<html>` between `"dark"` and `"light"`, and
+remembers the choice in `localStorage` so it persists across visits. All the
+actual colors live in the `:root` / `[data-theme="light"]` blocks at the top
+of `style.css` — edit those to change the palette. Note this only affects the
+site's own UI (form, panels); the generated card image itself is unaffected,
+since that's drawn from your template and is meant to look the same
+regardless of who's using the tool.
+
+## Preset autofill
+
+The **Preset** dropdown at the top of the form fills in several other
+fields at once — including the asset image — based on the `PRESETS` object
+near the top of `script.js`. Every field it touches remains a normal,
+editable input afterwards; nothing is locked. To add your own presets, add
+an entry to `PRESETS` keyed by whatever value you give its `<option>` in
+`index.html`, e.g.:
+
+```js
+"preset-d": {
+  title: "New Preset",
+  asset: "asset-04.png",
+  color: "#8a5a9e"
+  // any other field keys you want it to fill: category, subtitle,
+  // description, stat, footer
+}
+```
+
+You don't have to fill every field — presets can set as many or as few as
+you like.
+
+## Suggestion + custom-text fields
+
+**Category tag**, **Subtitle**, and **Footer note** use a native HTML
+`<datalist>` — the user gets a dropdown of suggestions but can also type
+anything else. To edit the suggestion list for one of these, find its
+`<datalist>` block in `index.html` and add/remove `<option>` lines.
+
+## Toggle field
+
+The **Featured badge** switch is a plain checkbox styled as an on/off
+toggle. When checked, `script.js` draws a small badge (a star in a colored
+circle, using the accent color) in the corner of the card; when unchecked,
+nothing is drawn. Use this as the template for any other yes/no elements you
+want to add (e.g. a "holo" stripe, a stamp, a watermark) — add a checkbox
+field the same way and gate a draw call on `els.yourCheckbox.checked` in
+`render()`.
 
 ## 3. Run it locally
 

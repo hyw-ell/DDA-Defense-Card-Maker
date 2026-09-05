@@ -72,6 +72,55 @@ const LAYOUT = {
     font: "italic 11px Georgia",
     color: "#999999",
     align: "center"
+  },
+  featuredBadge: {
+    // small ribbon drawn in the corner when the "Featured badge" toggle is on
+    x: CANVAS_WIDTH - 14, y: 14,
+    radius: 26,
+    font: "bold 9px Arial",
+    textColor: "#ffffff",
+    label: "★"
+  }
+};
+
+/* ============================================================
+   PRESETS
+   ------------------------------------------------------------
+   Selecting one of these in the "Preset" dropdown fills in the
+   listed fields below, but every field stays a normal, editable
+   input afterwards — nothing gets locked.
+   ============================================================ */
+
+const PRESETS = {
+  "preset-a": {
+    category: "LIMITED EDITION",
+    title: "Sunburst",
+    subtitle: "Radiant Edition",
+    asset: "asset-01.png",
+    stat: 80,
+    color: "#d97757",
+    description: "A bold example preset that fills in several fields at once, including the asset image.",
+    footer: "made with the generator"
+  },
+  "preset-b": {
+    category: "EXCLUSIVE DROP",
+    title: "Deep Sea",
+    subtitle: "Deep Sea Series",
+    asset: "asset-02.png",
+    stat: 55,
+    color: "#3a5a78",
+    description: "A second example preset — swap these values out for your own real presets.",
+    footer: "one of a kind"
+  },
+  "preset-c": {
+    category: "ARCHIVE",
+    title: "Meadow",
+    subtitle: "Meadow Collection",
+    asset: "asset-03.png",
+    stat: 65,
+    color: "#7a9e5b",
+    description: "A third example preset. Add or remove keys here to control exactly which fields it fills.",
+    footer: "not for resale"
   }
 };
 
@@ -82,8 +131,10 @@ const LAYOUT = {
 const canvas = document.getElementById("card-canvas");
 const ctx = canvas.getContext("2d");
 const coordReadout = document.getElementById("coord-readout");
+const themeToggle = document.getElementById("theme-toggle");
 
 const els = {
+  preset: document.getElementById("f-preset"),
   category: document.getElementById("f-category"),
   title: document.getElementById("f-title"),
   subtitle: document.getElementById("f-subtitle"),
@@ -95,11 +146,37 @@ const els = {
   date: document.getElementById("f-date"),
   footer: document.getElementById("f-footer"),
   color: document.getElementById("f-color"),
+  featured: document.getElementById("f-featured"),
   grid: document.getElementById("f-grid")
 };
 
 let templateImg = null;
 let assetImgCache = {}; // filename -> loaded HTMLImageElement
+
+/* ============================================================
+   THEME (light/dark)
+   ------------------------------------------------------------
+   The <head> already sets data-theme on <html> before this file
+   loads (see index.html), defaulting to dark. This just wires up
+   the toggle button and remembers the choice.
+   ============================================================ */
+
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+}
+
+function updateThemeButton() {
+  const theme = currentTheme();
+  themeToggle.textContent = theme === "dark" ? "☀︎" : "☾";
+  themeToggle.setAttribute("aria-pressed", theme === "light");
+}
+
+function toggleTheme() {
+  const next = currentTheme() === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+  updateThemeButton();
+}
 
 /* ============================================================
    LOAD TEMPLATE + MANIFEST, THEN INITIAL RENDER
@@ -115,6 +192,9 @@ function loadImage(src) {
 }
 
 async function init() {
+  updateThemeButton();
+  themeToggle.addEventListener("click", toggleTheme);
+
   // Load the template background. If it's missing, draw a placeholder
   // so the page still works before you've added your template file.
   try {
@@ -151,6 +231,19 @@ function attachListeners() {
   els.stat.addEventListener("input", () => {
     els.statOut.textContent = els.stat.value;
   });
+
+  // Preset dropdown: fills in several other fields, but each one
+  // stays a normal editable input afterwards.
+  els.preset.addEventListener("change", () => {
+    const preset = PRESETS[els.preset.value];
+    if (!preset) return; // "-- Custom --" selected: leave everything as-is
+    Object.entries(preset).forEach(([key, value]) => {
+      if (els[key]) els[key].value = value;
+    });
+    if (els.stat) els.statOut.textContent = els.stat.value;
+    render();
+  });
+
   document.getElementById("download-btn").addEventListener("click", downloadImage);
 
   canvas.addEventListener("click", (evt) => {
@@ -215,6 +308,22 @@ function drawGrid() {
     if (y % 40 === 0) ctx.fillText(String(y), 2, y - 2);
   }
   ctx.restore();
+}
+
+function drawFeaturedBadge(accent) {
+  const b = LAYOUT.featuredBadge;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+  ctx.fillStyle = accent;
+  ctx.fill();
+  ctx.fillStyle = b.textColor;
+  ctx.font = b.font;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(b.label, b.x, b.y + 12);
+  ctx.restore();
+  ctx.textBaseline = "alphabetic"; // reset default for later draws
 }
 
 /* ============================================================
@@ -323,6 +432,9 @@ async function render() {
   ctx.font = f.font;
   ctx.textAlign = f.align;
   ctx.fillText(els.footer.value, f.x, f.y);
+
+  // 11. Featured badge (only drawn if the toggle is on)
+  if (els.featured.checked) drawFeaturedBadge(accent);
 
   // Optional position grid overlay (never included in the downloaded PNG)
   if (els.grid.checked) drawGrid();
