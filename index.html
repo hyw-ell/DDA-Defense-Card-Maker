@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Generator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <h1>Image Generator</h1>
+    <p>Fill in the fields, pick an asset, then download the result.</p>
+  </header>
+
+  <div class="layout">
+
+    <!-- FORM -->
+    <form id="card-form" class="panel">
+
+      <div class="field">
+        <label for="f-category">Category tag</label>
+        <input type="text" id="f-category" value="LIMITED EDITION" maxlength="24">
+      </div>
+
+      <div class="field">
+        <label for="f-title">Title</label>
+        <input type="text" id="f-title" value="Field Name Here" maxlength="30">
+      </div>
+
+      <div class="field">
+        <label for="f-subtitle">Subtitle</label>
+        <input type="text" id="f-subtitle" value="A short subtitle" maxlength="40">
+      </div>
+
+      <div class="field">
+        <label for="f-asset">Asset image</label>
+        <select id="f-asset"></select>
+      </div>
+
+      <div class="field">
+        <label for="f-stat">Stat value <span id="f-stat-out">50</span>/100</label>
+        <input type="range" id="f-stat" min="0" max="100" value="50">
+      </div>
+
+      <div class="field">
+        <label for="f-description">Description</label>
+        <textarea id="f-description" rows="3" maxlength="160">A short block of descriptive text that will wrap across multiple lines on the card.</textarea>
+      </div>
+
+      <div class="field">
+        <label for="f-id">ID number</label>
+        <input type="text" id="f-id" value="#0001" maxlength="10">
+      </div>
+
+      <div class="field">
+        <label for="f-date">Date</label>
+        <input type="date" id="f-date">
+      </div>
+
+      <div class="field">
+        <label for="f-footer">Footer note</label>
+        <input type="text" id="f-footer" value="made with the generator" maxlength="40">
+      </div>
+
+      <div class="field">
+        <label for="f-color">Accent color</label>
+        <input type="color" id="f-color" value="#d97757">
+      </div>
+
+      <div class="field checkbox-field">
+        <label for="f-grid"><input type="checkbox" id="f-grid"> Show position grid (for lining up coordinates)</label>
+      </div>
+
+      <button type="button" id="download-btn">Download PNG</button>
+
+    </form>
+
+    <!-- PREVIEW -->
+    <div class="panel preview-panel">
+      <canvas id="card-canvas" width="360" height="430"></canvas>
+      <p class="coord-readout" id="coord-readout">Click anywhere on the image to read its x, y coordinates.</p>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

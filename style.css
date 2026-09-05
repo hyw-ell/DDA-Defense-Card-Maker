@@ -1,0 +1,142 @@
+:root {
+  --bg: #f6f5f2;
+  --panel: #ffffff;
+  --ink: #1c1c1c;
+  --muted: #6b6b6b;
+  --line: #e2e0da;
+  --accent: #3a5a78;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+header h1 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+}
+
+header p {
+  margin: 0 0 24px;
+  color: var(--muted);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.field {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.checkbox-field label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  display: flex;
+}
+
+input[type="text"],
+input[type="date"],
+textarea,
+select {
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+input[type="color"] {
+  width: 60px;
+  height: 34px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+
+textarea {
+  resize: vertical;
+}
+
+#download-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+#download-btn:hover {
+  filter: brightness(1.08);
+}
+
+.preview-panel {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+#card-canvas {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: crosshair;
+  background: #fafafa;
+}
+
+.coord-readout {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-align: center;
+  min-height: 1.2em;
+  margin: 0;
+}
