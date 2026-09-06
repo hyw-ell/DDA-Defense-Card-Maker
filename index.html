@@ -107,32 +107,38 @@
         <p class="ocr-status" id="ocr-status"></p>
       </div>
       <!-- Section 3: Defense stats -->
-      <div class="field">
-        <label for="f-fortify">Fortify</label>
-        <input type="text" id="f-fortify" value="" placeholder="e.g. 5991">
-      </div>
+      <div class="stat-grid">
+        <div class="field">
+          <label for="f-power">Power</label>
+          <input type="text" id="f-power" value="" placeholder="e.g. 20.26k">
+        </div>
 
-      <div class="field">
-        <label for="f-power">Power</label>
-        <input type="text" id="f-power" value="" placeholder="e.g. 20.26k">
-      </div>
+        <div class="field">
+          <label for="f-range">Range</label>
+          <input type="text" id="f-range" value="" placeholder="e.g. 13.37k">
+        </div>
 
-      <div class="field">
-        <label for="f-range">Range</label>
-        <input type="text" id="f-range" value="" placeholder="e.g. 13.37k">
+        <div class="field">
+          <label for="f-defrate">Def. Rate</label>
+          <input type="text" id="f-defrate" value="" placeholder="e.g. 15.69k">
+        </div>
+        
+        <div class="field">
+          <label for="f-fortify">Fortify</label>
+          <input type="text" id="f-fortify" value="" placeholder="e.g. 5991">
+        </div>
       </div>
-
-      <div class="field">
-        <label for="f-defrate">Def. Rate</label>
-        <input type="text" id="f-defrate" value="" placeholder="e.g. 15.69k">
-      </div>
-
+      
       <div class="field">
         <label for="f-defdamage">Def. Damage</label>
         <input type="text" id="f-defdamage" inputmode="decimal" value="" placeholder="e.g. 12.345">
       </div>
 
-      <hr class="divider">
+    </form>
+
+    <!-- PREVIEW -->
+    <div class="panel preview-panel">
+      <canvas id="card-canvas" width="360" height="430"></canvas>
 
       <!-- Additional Options (rarely need to change) -->
       <details class="additional-options">
@@ -150,14 +156,16 @@
           </select>
         </div>
 
-        <div class="field">
-          <label for="f-mana">Mana</label>
-          <input type="text" id="f-mana" value="" inputmode="numeric" placeholder="—">
-        </div>
+        <div class="stat-grid">
+          <div class="field">
+            <label for="f-mana">Mana</label>
+            <input type="text" id="f-mana" value="" inputmode="numeric" placeholder="—">
+          </div>
 
-        <div class="field">
-          <label for="f-du">DU</label>
-          <input type="text" id="f-du" value="" inputmode="numeric" placeholder="—">
+          <div class="field">
+            <label for="f-du">DU</label>
+            <input type="text" id="f-du" value="" inputmode="numeric" placeholder="—">
+          </div>
         </div>
 
         <div class="field">
@@ -174,12 +182,6 @@
       </details>
 
       <button type="button" id="download-btn">Download PNG</button>
-
-    </form>
-
-    <!-- PREVIEW -->
-    <div class="panel preview-panel">
-      <canvas id="card-canvas" width="360" height="430"></canvas>
     </div>
 
   </div>
