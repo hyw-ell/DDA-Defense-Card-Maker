@@ -91,7 +91,27 @@
 
       <hr class="divider">
 
+      <div class="field">
+        <label for="f-ocr-screenshot">Import stats from screenshot</label>
+        <div class="dropzone" id="ocr-dropzone">
+          <input type="file" id="f-ocr-screenshot" accept="image/*" class="dropzone-input">
+          <div class="dropzone-content">
+            <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p class="dropzone-text"><strong>Click to upload</strong>, drag and drop, or paste (Ctrl+V)</p>
+            <p class="dropzone-hint">PNG or JPG</p>
+          </div>
+        </div>
+        <p class="ocr-status" id="ocr-status"></p>
+      </div>
       <!-- Section 3: Defense stats -->
+      <div class="field">
+        <label for="f-fortify">Fortify</label>
+        <input type="text" id="f-fortify" value="" placeholder="e.g. 5991">
+      </div>
+
       <div class="field">
         <label for="f-power">Power</label>
         <input type="text" id="f-power" value="" placeholder="e.g. 20.26k">
@@ -105,11 +125,6 @@
       <div class="field">
         <label for="f-defrate">Def. Rate</label>
         <input type="text" id="f-defrate" value="" placeholder="e.g. 15.69k">
-      </div>
-
-      <div class="field">
-        <label for="f-fortify">Fortify</label>
-        <input type="text" id="f-fortify" value="" placeholder="e.g. 5991">
       </div>
 
       <div class="field">
@@ -176,6 +191,7 @@
   </footer>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

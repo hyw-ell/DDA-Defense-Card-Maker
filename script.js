@@ -48,10 +48,10 @@ const LAYOUT = {
     align: "left"
   },
   mana: {
-    x: 240, y: 40,
+    x: 265, y: 40,
     font: `21px ${FONT_BOLD}`,
     color: "#ffffff",
-    align: "left"
+    align: "right"
   },
   du: {
     x: 303, y: 40,
@@ -309,12 +309,108 @@ function populateDefenseAndHeroOptions() {
     heroNames.map(h => `<option value="${h}">${h}</option>`).join("");
 }
 
+function setupOcrDropzone() {
+  const dropzone = document.getElementById("ocr-dropzone");
+  const fileInput = document.getElementById("f-ocr-screenshot");
+
+  fileInput.addEventListener("change", (e) => {
+    handleOcrScreenshot(e.target.files[0]);
+  });
+
+  // The file input covers the whole box (see .dropzone-input CSS), so
+  // click-to-open and native file drag-and-drop both work automatically —
+  // dropping a file directly onto a file input sets its .files and fires
+  // "change" on its own. These listeners just add the visual highlight.
+  ["dragenter", "dragover"].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropzone.classList.add("dragover");
+    });
+  });
+  ["dragleave", "drop"].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("dragover");
+    });
+  });
+
+  // Paste is listened for on the whole document rather than requiring the
+  // dropzone to be focused first — this is the only image-paste feature
+  // on the page, so it's safe to treat any pasted image as intended for
+  // it, which is more forgiving than needing a click-to-focus step first.
+  document.addEventListener("paste", (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        handleOcrScreenshot(item.getAsFile());
+        e.preventDefault();
+        break;
+      }
+    }
+  });
+}
+
+async function handleOcrScreenshot(file) {
+  const status = document.getElementById("ocr-status");
+  if (!file) return;
+  status.textContent = "Scanning screenshot…";
+
+  try {
+    const { data } = await Tesseract.recognize(file, "eng");
+    const text = data.text;
+
+    const patterns = {
+      power:     /power\D*?([\d.]+[a-zA-Z]?)/i,
+      range:     /range\D*?([\d.]+[a-zA-Z]?)/i,
+      defrate:   /def\.?\s*rate\D*?([\d.]+[a-zA-Z]?)/i,
+      fortify:   /fortify\D*?([\d.]+[a-zA-Z]?)/i,
+      defdamage: /def\.?\s*damage[^\d]*([\d.]+)/i  // "+19.252%" -> "19.252"
+    };
+
+    // Values over 9999 always end in a decimal + a letter ("k") in-game.
+    // Any trailing letter here is that "k" — OCR occasionally misreads it
+    // as a different letter, so we just normalize whatever it captured
+    // to "k" rather than trying to match it exactly.
+    function normalizeStatToken(token) {
+      if (!token) return null;
+      const match = token.trim().match(/^([\d.]+)([a-zA-Z]?)$/);
+      if (!match) return null;
+      let [, number, suffix] = match;
+      if (/(?<!\d)\d\./.test(number)) number = '1' + number;  // Numbers < 10000 will not have a decimal separator, so OCR misread and we add 10000 as a correction
+      return (suffix || number.includes('.')) ? number + "k" : number;
+    }
+
+    const found = [];
+    Object.entries(patterns).forEach(([key, regex]) => {
+      const match = text.match(regex);
+      if (!match) return;
+
+      const value = key === "defdamage" ? match[1] : normalizeStatToken(match[1]);
+      if (value !== null) {
+        els[key].value = value;
+        found.push(key);
+      }
+    });
+
+    render();
+
+    status.textContent = found.length
+      ? `Imported: ${found.map(e => e.charAt(0).toUpperCase() + e.slice(1)).join(", ").replace(/defdamage/i, "Def. Damage").replace(/defrate/i, "Def. Rate")}`
+      : "Couldn't find any stats in that image — try a clearer screenshot or enter them manually.";
+  } catch (err) {
+    console.error(err);
+    status.textContent = "Something went wrong scanning that image.";
+  }
+}
+
 async function init() {
   updateThemeButton();
   themeToggle.addEventListener("click", toggleTheme);
 
   await loadFonts();
   populateDefenseAndHeroOptions();
+  setupOcrDropzone();
 
   // Load both template variants up front so toggling Fusion is instant.
   try {
@@ -359,7 +455,7 @@ function attachListeners() {
     els.mana.value = config.mana ?? "";
     els.du.value = config.du ?? "";
     els.hero.value = config.hero ?? "";
-    els.targeting.value = config.targetingPriority || DEFAULT_TARGETING;
+    if (config.targetingPriority) els.targeting.value = config.targetingPriority;
     if (config.icon) els.asset.value = config.icon;
     render();
   });
@@ -382,14 +478,14 @@ function drawIfPresent(layout, value, colorOverride, outline = false) {
   if (value === null || value === undefined || String(value).trim() === "") return;
   ctx.fillStyle = colorOverride || layout.color;
   ctx.font = layout.font;
+  ctx.textAlign = layout.align;
 
   if (outline) {
     ctx.strokeStyle = "black"
     ctx.lineWidth = 4
     ctx.strokeText(String(value), layout.x, layout.y)
   }
-
-  ctx.textAlign = layout.align;
+  
   ctx.fillText(String(value), layout.x, layout.y);
 }
 
@@ -545,7 +641,7 @@ function downloadImage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = (els.defense.value || "card").replace(/\s+/g, "_") + ".png";
+    a.download = (els.fusion.checked ? "Fused_" : "") + (els.defense.value || "card").replace(/\s+/g, "_") + ".png";
     a.click();
     URL.revokeObjectURL(url);
   }, "image/png");
