@@ -20,81 +20,81 @@ const FUSED_TEMPLATE_SRC = "assets/fused-template.png";
 const MANIFEST_SRC = "assets/manifest.json";
 
 const FONT_REGULAR = "Poppins, Arial, sans-serif";
-const FONT_BOLD = "Poppins, Arial, sans-serif"; // weight is set separately, see draw calls
+const FONT_BOLD = "Poppins-Bold, Arial, sans-serif";
+const FONT_SEMIBOLD = "Poppins-SemiBold, Arial, sans-serif";
 
 const LAYOUT = {
   icon: {
     // drawn UNDERNEATH the template — the template should have a
     // transparent window over this box for it to show through.
-    x: 15, y: 15, width: 67, height: 67
+    x: 42, y: 68, width: 67, height: 67
   },
   defenseName: {
-    x: 95, y: 34,
-    font: `bold 20px ${FONT_BOLD}`,
-    color: "#111111",
+    x: 121, y: 105,
+    font: `24px ${FONT_BOLD}`,
+    color: "#ffffff",
     align: "left"
   },
   level: {
-    x: 95, y: 54,
-    font: `13px ${FONT_REGULAR}`,
-    color: "#444444",
+    x: 60, y: 40,
+    font: `21px ${FONT_BOLD}`,
+    color: "#ffffff",
     align: "left"
   },
   hero: {
-    x: 95, y: 72,
-    font: `bold 13px ${FONT_BOLD}`,
+    x: 121, y: 80,
+    font: `17px ${FONT_BOLD}`,
     color: "#444444", // fallback color if the hero isn't in HERO_COLORS below
     align: "left"
   },
   mana: {
-    x: 95, y: 90,
-    font: `13px ${FONT_REGULAR}`,
-    color: "#444444",
+    x: 240, y: 40,
+    font: `21px ${FONT_BOLD}`,
+    color: "#ffffff",
     align: "left"
   },
   du: {
-    x: 230, y: 90,
-    font: `13px ${FONT_REGULAR}`,
-    color: "#444444",
+    x: 303, y: 40,
+    font: `21px ${FONT_BOLD}`,
+    color: "#ffffff",
     align: "left"
   },
   fusionReq: {
-    x: 15, y: 200,
-    font: `12px ${FONT_REGULAR}`,
-    color: "#555555",
+    x: 39, y: 197,
+    font: `21px ${FONT_SEMIBOLD}`,
+    color: "#fb21ff",
     align: "left"
   },
   runeReq: {
-    x: 15, y: 218,
-    font: `12px ${FONT_REGULAR}`,
-    color: "#555555",
+    x: 39, y: 255,
+    font: `21px ${FONT_SEMIBOLD}`,
+    color: "#1cdfda",
     align: "left"
   },
   targeting: {
-    x: 15, y: 236,
-    font: `12px ${FONT_REGULAR}`,
-    color: "#555555",
+    x: 39, y: 316,
+    font: `21px ${FONT_SEMIBOLD}`,
+    color: "#fb683c",
     align: "left"
   },
   // 4 stats laid out in a row near the bottom. No labels are drawn here —
   // the template already has "Power" / "Range" / etc. printed on it; this
   // just places the value on top of each.
-  statRow: {
-    y: 388,
-    valueFont: `bold 15px ${FONT_BOLD}`,
-    valueColor: "#111111",
-    columns: [
-      { key: "power", x: 20 },
-      { key: "range", x: 110 },
-      { key: "defrate", x: 200 },
-      { key: "fortify", x: 290 }
+  defStats: {
+    valueFont: `16px ${FONT_REGULAR}`,
+    valueColor: "#ffffff",
+    entries: [
+      { key: "power", x: 175, y: 351 },
+      { key: "range", x: 320, y: 351 },
+      { key: "defrate", x: 175, y: 377 },
+      { key: "fortify", x: 320, y: 377 }
     ]
   },
   defDamage: {
-    x: 15, y: 412,
-    font: `12px ${FONT_REGULAR}`,
-    color: "#555555",
-    align: "left"
+    x: 275, y: 402,
+    font: `16px ${FONT_SEMIBOLD}`,
+    color: "#0a66d1",
+    align: "right"
   }
 };
 
@@ -107,11 +107,14 @@ const LAYOUT = {
    ============================================================ */
 
 const HERO_COLORS = {
-  "Hero Alpha": "#d97757",
-  "Hero Beta": "#3a5a78",
-  "Hero Gamma": "#7a9e5b",
-  "Hero Delta": "#c9a227",
-  "Hero Epsilon": "#8a5a9e"
+  "Apprentice": "#187cb4",
+  "Huntress": "#047f3e",
+  "Monk": "#e26625",
+  "Squire": "#a51111",
+  "Series EV-A": "#64378d",
+  "Warden": "#04b49f",
+  "Summoner": "#5e5379",
+  "Guardian": "#eea629",
 };
 
 /* ============================================================
@@ -128,11 +131,54 @@ const HERO_COLORS = {
    ============================================================ */
 
 const DEFENSES = {
-  "Defense A": { hero: "Hero Alpha", mana: 150, du: 4, icon: "asset-01.png" },
-  "Defense B": { hero: "Hero Beta", mana: 200, du: 6, icon: "asset-02.png" },
-  "Defense C": { hero: "Hero Gamma", mana: 120, du: 3, icon: "asset-03.png", targetingPriority: "N/A" },
-  "Defense D": { hero: "Hero Delta", mana: 250, du: 8, icon: "asset-04.png" },
-  "Defense E": { hero: "Hero Epsilon", mana: 180, du: 5, icon: "asset-05.png", targetingPriority: "N/A" }
+  "Magic Missile Tower": { hero: "Apprentice", mana: 40, du: 2, icon: "Defense_MagicMissileTower.png" },
+  "Elemental Blockade": { hero: "Apprentice", mana: 20, du: 1, icon: "Defense_ArcaneBarrier.png", targetingPriority: "N/A" },
+  "Flameburst Tower": { hero: "Apprentice", mana: 80, du: 4, icon: "Defense_FireballTower.png" },
+  "Lightning Tower": { hero: "Apprentice", mana: 120, du: 6, icon: "Defense_LightningTower.png" },
+  "Deadly Striker Tower": { hero: "Apprentice", mana: 150, du: 8, icon: "Defense_StrikerTower.png" },
+
+  "Explosive Trap": { hero: "Huntress", mana: 40, du: 3, icon: "Defense_ProximityTrap.png", targetingPriority: "N/A" },
+  "Poison Trap": { hero: "Huntress", mana: 30, du: 3, icon: "Defense_GasTrap.png", targetingPriority: "N/A" },
+  "Inferno Trap": { hero: "Huntress", mana: 60, du: 4, icon: "Defense_InfernoTrap.png", targetingPriority: "N/A" },
+  "Poison Dart Tower": { hero: "Huntress", mana: 60, du: 3, icon: "Defense_PoisonDart.png" },
+  "Thunder Spike Trap": { hero: "Huntress", mana: 80, du: 3, icon: "Defense_EtherialSpikeTrap.png", targetingPriority: "N/A" },
+
+  "Ensnare Aura": { hero: "Monk", mana: 30, du: 3, icon: "Defense_EnsnareAura.png", targetingPriority: "N/A" },
+  "Electric Aura": { hero: "Monk", mana: 50, du: 5, icon: "Defense_ElectricAura.png", targetingPriority: "N/A" },
+  "Healing Aura": { hero: "Monk", mana: 40, du: 2, icon: "Defense_HealingAura.png", targetingPriority: "N/A" },
+  "Strength Drain Aura": { hero: "Monk", mana: 60, du: 4, icon: "Defense_StrengthDrainAura.png", targetingPriority: "N/A" },
+  "Enrage Aura": { hero: "Monk", mana: 100, du: 5, icon: "Defense_EnrageAura.png", targetingPriority: "N/A" },
+  
+  "Spiked Blockade": { hero: "Squire", mana: 30, du: 2, icon: "Defense_SpikyBlockade.png", targetingPriority: "N/A" },
+  "Sniper Cannon": { hero: "Squire", mana: 80, du: 4, icon: "Defense_SniperCannonTower_Icon.png" },
+  "Bowling Ball Tower": { hero: "Squire", mana: 70, du: 4, icon: "Defense_BowlingBallTower.png" },
+  "Harpoon Tower": { hero: "Squire", mana: 80, du: 5, icon: "Defense_HarpoonTower.png" },
+  "Slice N' Dice Blockade": { hero: "Squire", mana: 100, du: 4, icon: "Defense_SliceNDiceTower.png", targetingPriority: "N/A" },
+
+  "Proton Beam": { hero: "Series EV-A", mana: 4, du: 2, icon: "Defense_ProtonBeam.png", targetingPriority: "N/A" },
+  "Reflect Field": { hero: "Series EV-A", mana: 20, du: 1, icon: "Defense_ReflectionBeam.png", targetingPriority: "N/A" },
+  "Blocking Reflect Field": { hero: "Series EV-A", mana: 20, du: 1, icon: "Defense_PhysicalBeam.png", targetingPriority: "N/A" },
+  "Heat Cannon": { hero: "Series EV-A", mana: 70, du: 5, icon: "Defense_HeatCannon.png" },
+  "Plasma Defense System": { hero: "Series EV-A", mana: 150, du: 8, icon: "Defense_PlasmaDefenseSystem.png" },
+  "Overclock Beam": { hero: "Series EV-A", mana: 70, du: 3, icon: "Defense_TowerBuffBeam.png", targetingPriority: "N/A" },
+
+  "Roots Of Purity": { hero: "Warden", mana: 20, du: 1, icon: "Defense_Roots_Of_Purity.png", targetingPriority: "N/A" },
+  "Shroomy Geyser": { hero: "Warden", mana: 60, du: 1, icon: "Defense_Shroom_Pit.png" },
+  "Wisp Den": { hero: "Warden", mana: 50, du: 3, icon: "Defense_Wisp_Den.png" },
+  "Beaming Blossom": { hero: "Warden", mana: 70, du: 4, icon: "Defense_Beaming_Blossom.png" },
+  "Sludge Launcher": { hero: "Warden", mana: 100, du: 5, icon: "Defense_Sludge_Launcher.png" },
+
+  "Archer Minion": { hero: "Summoner", mana: 60, du: 2, icon: "Defense_Archer_Tower.png" },
+  "Spider Minion": { hero: "Summoner", mana: 70, du: 3, icon: "Defense_Spider_Tower.png" },
+  "Mage Minion": { hero: "Summoner", mana: 80, du: 3, icon: "Defense_Mage_Tower.png" },
+  "Siren Minion": { hero: "Summoner", mana: 120, du: 4, icon: "Defense_Siren_Tower.png" },
+  "Ogre Minion": { hero: "Summoner", mana: 120, du: 5, icon: "Defense_Ogre_Tower.png" },
+
+  "Holy Bulwark": { hero: "Guardian", mana: 20, du: 3, icon: "Defense_Holy_Bulwark.png", targetingPriority: "N/A" },
+  "Holy Cannon": { hero: "Guardian", mana: 80, du: 4, icon: "Defense_Holy_Cannon.png" },
+  "The Obelisk": { hero: "Guardian", mana: 70, du: 4, icon: "Defense_Obelisk.png" },
+  "Owl Perch": { hero: "Guardian", mana: 50, du: 3, icon: "Defense_Owl_Perch.png" },
+  "Empowering Shrine": { hero: "Guardian", mana: 200, du: 2, icon: "Defense_Empowering_Shrine.png", targetingPriority: "N/A" },
 };
 
 const DEFAULT_TARGETING = "Special";
@@ -197,10 +243,12 @@ function toggleTheme() {
 
 async function loadFonts() {
   try {
-    const regular = new FontFace("Poppins", "url(assets/fonts/Poppins-Regular.ttf)", { weight: "400", style: "normal" });
-    const bold = new FontFace("Poppins", "url(assets/fonts/Poppins-bold.ttf)", { weight: "700", style: "normal" });
-    const [loadedRegular, loadedBold] = await Promise.all([regular.load(), bold.load()]);
+    const regular = new FontFace("Poppins", "url(assets/fonts/Poppins-Regular.ttf)");
+    const semiBold = new FontFace("Poppins-SemiBold", "url(assets/fonts/Poppins-SemiBold.ttf)");
+    const bold = new FontFace("Poppins-Bold", "url(assets/fonts/Poppins-Bold.ttf)");
+    const [loadedRegular, loadedSemiBold, loadedBold] = await Promise.all([regular.load(), semiBold.load(), bold.load()]);
     document.fonts.add(loadedRegular);
+    document.fonts.add(loadedSemiBold);
     document.fonts.add(loadedBold);
   } catch (e) {
     console.warn("Poppins font files not found in assets/fonts/ — falling back to Arial until they're added.", e);
@@ -210,15 +258,6 @@ async function loadFonts() {
 /* ============================================================
    NUMBER / PERCENTAGE FORMATTING
    ============================================================ */
-
-// Positive integers only. Anything over 9999 is abbreviated with "k"
-// (e.g. 12345 -> "12k"). No comma separators. Values won't exceed
-// 30000 per spec, so no further abbreviation is needed.
-function formatStatNumber(raw) {
-  const n = Math.max(0, parseInt(raw, 10) || 0);
-  if (n > 9999) return Math.floor(n / 1000) + "k";
-  return String(n);
-}
 
 // Strips a text input down to digits only, live, as the user types.
 function sanitizeIntegerInput(el) {
@@ -259,7 +298,7 @@ function loadImage(src) {
 }
 
 function populateDefenseAndHeroOptions() {
-  const defenseNames = Object.keys(DEFENSES);
+  const defenseNames = Object.keys(DEFENSES).sort();
   els.defense.innerHTML =
     `<option value="" selected>-- Select Defense --</option>` +
     defenseNames.map(name => `<option value="${name}">${name}</option>`).join("");
@@ -309,11 +348,6 @@ function attachListeners() {
     el.addEventListener("input", render);
   });
 
-  // Integer-only fields
-  [els.power, els.range, els.defrate, els.fortify].forEach(el => {
-    el.addEventListener("input", () => sanitizeIntegerInput(el));
-  });
-
   // Percentage field (up to 3 decimals)
   els.defdamage.addEventListener("input", () => sanitizeDecimalInput(els.defdamage));
 
@@ -344,12 +378,64 @@ function attachListeners() {
 // Draws `value` at a LAYOUT position/font/color, but only if it's
 // actually non-empty — fields with no user input draw nothing, since
 // the template already has its own static labels/icons baked in.
-function drawIfPresent(layout, value, colorOverride) {
+function drawIfPresent(layout, value, colorOverride, outline = false) {
   if (value === null || value === undefined || String(value).trim() === "") return;
   ctx.fillStyle = colorOverride || layout.color;
   ctx.font = layout.font;
+
+  if (outline) {
+    ctx.strokeStyle = "black"
+    ctx.lineWidth = 4
+    ctx.strokeText(String(value), layout.x, layout.y)
+  }
+
   ctx.textAlign = layout.align;
   ctx.fillText(String(value), layout.x, layout.y);
+}
+
+// Wraps text across up to `maxLines` lines (default 2), truncating the
+// final line with "…" if it still doesn't fit. Uses layout.maxWidth and
+// layout.lineHeight in addition to the usual x/y/font/color/align.
+function drawDefenseName(layout, value, maxLines = 2) {
+  if (value === null || value === undefined || String(value).trim() === "") return;
+
+  ctx.fillStyle = layout.color;
+  ctx.font = layout.font;
+  ctx.textAlign = layout.align;
+
+  const maxWidth = 200;
+  const lineHeight = 28;
+  const words = String(value).split(/\s+/);
+
+  if (els.fusion.checked) words.unshift('Fused')
+
+  const lines = [];
+  let line = "";
+
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line ? line + " " + words[i] : words[i];
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      lines.push(line);
+      line = words[i];
+      if (lines.length === maxLines - 1) {
+        let rest = words.slice(i).join(" ");
+        while (ctx.measureText(rest + "…").width > maxWidth && rest.length > 0) {
+          rest = rest.slice(0, -1);
+        }
+        if (rest !== words.slice(i).join(" ")) rest += "…";
+        lines.push(rest);
+        line = "";
+        i = words.length; // stop the loop
+      }
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) lines.push(line);
+
+  lines.slice(0, maxLines).forEach((l, idx) => {
+    ctx.fillText(l, layout.x, layout.y + idx * lineHeight);
+  });
 }
 
 async function render() {
@@ -396,19 +482,19 @@ async function render() {
   }
 
   // 3. Defense name (title) — only drawn once a defense is actually selected.
-  drawIfPresent(LAYOUT.defenseName, els.defense.value);
+  drawDefenseName(LAYOUT.defenseName, els.defense.value);
 
   // 4. Level — always has a real value (no blank state), so it always draws.
-  drawIfPresent(LAYOUT.level, els.level.value);
+  drawIfPresent(LAYOUT.level, els.level.value, undefined, true);
 
   // 5. Hero — colored per-hero via HERO_COLORS, falls back to LAYOUT.hero.color.
   drawIfPresent(LAYOUT.hero, els.hero.value, HERO_COLORS[els.hero.value]);
 
   // 6. Mana
-  drawIfPresent(LAYOUT.mana, els.mana.value);
+  drawIfPresent(LAYOUT.mana, els.mana.value, undefined, true);
 
   // 7. DU
-  drawIfPresent(LAYOUT.du, els.du.value);
+  drawIfPresent(LAYOUT.du, els.du.value, undefined, true);
 
   // 8. Fusion Requirement
   drawIfPresent(LAYOUT.fusionReq, els.fusionReq.value);
@@ -423,14 +509,14 @@ async function render() {
   // 11. Stat row: Power, Range, Def. Rate, Fortify — no labels drawn
   // (the template already has those printed), and nothing drawn at all
   // if the user hasn't entered a value for that stat.
-  const sr = LAYOUT.statRow;
-  sr.columns.forEach(col => {
-    const rawValue = els[col.key].value;
-    if (rawValue.trim() === "") return;
-    ctx.fillStyle = sr.valueColor;
-    ctx.font = sr.valueFont;
-    ctx.textAlign = "left";
-    ctx.fillText(formatStatNumber(rawValue), col.x, sr.y);
+  const stats = LAYOUT.defStats;
+  stats.entries.forEach(col => {
+    const value = els[col.key].value;
+    if (value.trim() === "") return;
+    ctx.fillStyle = stats.valueColor;
+    ctx.font = stats.valueFont;
+    ctx.textAlign = "right";
+    ctx.fillText(value, col.x, col.y);
   });
 
   // 12. Def. Damage
