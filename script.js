@@ -31,7 +31,7 @@ const LAYOUT = {
   },
   defenseName: {
     x: 121, y: 105,
-    font: `24px ${FONT_BOLD}`,
+    font: `23px ${FONT_BOLD}`,
     color: "#ffffff",
     align: "left"
   },
@@ -499,11 +499,11 @@ function drawDefenseName(layout, value, maxLines = 2) {
   ctx.font = layout.font;
   ctx.textAlign = layout.align;
 
-  const maxWidth = 200;
+  const maxWidth = 210;
   const lineHeight = 28;
   const words = String(value).split(/\s+/);
 
-  if (els.fusion.checked) words.unshift('Fused')
+  // if (els.fusion.checked) words.unshift('Fused')
 
   const lines = [];
   let line = "";
